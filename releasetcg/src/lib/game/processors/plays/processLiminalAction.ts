@@ -83,7 +83,11 @@ export function processLiminalAction(
     //
 
     context.commandQueue.push(
-        createOpenParryWindowCommand(action.player, [action.gates[action.gates.length - 1]], action.cards),
+        createOpenParryWindowCommand(
+            action.player,
+            [action.gates[action.gates.length - 1]],
+            [action.card],
+        ),
     );
 
     incrementCardsPlayedThisTurn(

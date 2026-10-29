@@ -78,7 +78,11 @@ export function processBoundAction(
     //
 
     context.commandQueue.push(
-        createOpenParryWindowCommand(action.player, [action.gate], action.cards),
+        createOpenParryWindowCommand(
+            action.player,
+            [action.gate],
+            [action.firstHalf, ...action.middle, action.secondHalf],
+        ),
     );
 
     incrementCardsPlayedThisTurn(

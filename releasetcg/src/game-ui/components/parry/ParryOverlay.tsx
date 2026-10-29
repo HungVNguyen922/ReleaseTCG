@@ -164,7 +164,7 @@ export default function ParryOverlay() {
             </div>
 
             {/* Windows + chain, mirroring the board: second player on top */}
-            <div className="pointer-events-none absolute right-[2%] top-1/2 z-40 flex w-64 -translate-y-1/2 flex-col gap-2">
+            <div className="pointer-events-none absolute right-[2%] top-1/5 z-40 flex w-64 -translate-y-1/2 flex-col gap-2">
 
                 <div className="sr-only" aria-live="polite">
                     {parry.responderId} is responding to the play.

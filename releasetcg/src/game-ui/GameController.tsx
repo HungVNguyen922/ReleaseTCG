@@ -14,6 +14,7 @@ import DebugRevealToggle from "./components/debug/DebugRevealToggle";
 
 import PlayTypeSelector from "./components/play/PlayTypeSelector";
 import PlayConfirmBar from "./components/play/PlayConfirmBar";
+import ParryOverlay from "./components/parry/ParryOverlay";
 import WinModal from "./components/modals/WinModal";
 
 import { CardDefinition } from "@/lib/game/models";
@@ -41,6 +42,7 @@ export default function GameController(
                 <PlayerHand />
                 <TurnInfo />
                 <DebugRevealToggle />
+                <ParryOverlay/>
                 <WinModal />
 
                 <div className="absolute bottom-15 left-4 z-50 flex flex-col items-start gap-2">
