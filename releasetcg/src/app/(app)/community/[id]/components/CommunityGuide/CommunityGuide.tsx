@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import CommunityGuideToolbar from "./CommunityGuideToolbar";
 
@@ -25,7 +25,7 @@ export default function CommunityGuide({
   author,
   description,
 
-  canEdit = true,
+  canEdit = false,
 
   onSaveDescription,
   onDelete,
@@ -38,9 +38,18 @@ export default function CommunityGuide({
   const [draft, setDraft] =
     useState(description);
 
-  useEffect(() => {
+  //
+  // Re-sync the draft when the saved description changes
+  // (derived during render rather than in an effect).
+  //
+
+  const [lastDescription, setLastDescription] =
+    useState(description);
+
+  if (description !== lastDescription) {
+    setLastDescription(description);
     setDraft(description);
-  }, [description]);
+  }
 
   async function handleSave() {
     await onSaveDescription(draft);

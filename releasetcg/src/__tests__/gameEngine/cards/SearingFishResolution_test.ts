@@ -66,7 +66,7 @@ describe(
                 // Card to draw
                 //
 
-                game.addDeckCard({
+                game.addPublicPileCard({
 
                     colors: [
 
@@ -121,22 +121,20 @@ describe(
                 );
 
                 //
-                // Ability should now be waiting.
+                // The Play ability resolves as part of the engine run.
                 //
 
                 expect(
 
                     game.pendingResolutionCount,
 
-                ).toBe(1);
-
-                game.resolveNextAbility();
+                ).toBe(0);
 
                 expect(
 
                     game.player2.health,
 
-                ).toBe(19);
+                ).toBe(9);
 
                 expect(
 

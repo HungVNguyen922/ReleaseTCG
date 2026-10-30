@@ -13,7 +13,6 @@ import {
     PlayType,
     PriorityState,
     TurnState,
-    CardColor,
     CardDefinition,
 } from "@/lib/game/models";
 
@@ -29,7 +28,7 @@ import {
 import { GateReference, LocationReference } from "@/lib/game/refs";
 import { PlayIntent } from "@/lib/game/intents/PlayIntent";
 import { RuleResult } from "@/lib/game/rules";
-import { compilePlayIntent, compileParry, compileDeclineParry } from "@/lib/game/rules/play";
+import { compilePlayIntent, compileParry, compileDeclineParry, compilePass } from "@/lib/game/rules/play";
 
 import { createEngineContext } from "@/lib/game";
 
@@ -41,7 +40,6 @@ import {
     processAction,
 } from "@/lib/game/processors/processAction";
 
-import { createPassAction } from "@/lib/game/actions/PassAction";
 import { createEndTurnCommand } from "@/lib/game/commands";
 import { createPublicPile } from "@/lib/game/utils";
 
@@ -66,6 +64,15 @@ import {
 
 type GameListener = () => void;
 
+//
+// structuredClone is not available in every test environment
+// (e.g. jest-environment-jsdom), and game state is plain data.
+//
+
+function cloneState(state: GameState): GameState {
+    return JSON.parse(JSON.stringify(state)) as GameState;
+}
+
 export class TestGame {
 
     private readonly listeners = new Set<GameListener>();
@@ -78,7 +85,7 @@ export class TestGame {
 
     public readonly player2: PlayerState;
 
-    public readonly debugId: String;
+    public readonly debugId: string;
 
     constructor(
         options: {
@@ -293,57 +300,6 @@ export class TestGame {
 
             this.drawStartingHand("P1");
 
-        } else {
-
-            //
-            // Fallback for tests that don't
-            // supply a real deck.
-            //
-
-            this.addGateCard({
-
-                side: PlayerSide.Bottom,
-
-                position: 1,
-
-                ownerId: "P1",
-
-                name: "Test Gate",
-
-                power: 1,
-
-                bulk: 1,
-
-                colors: [
-                    CardColor.Red,
-                    CardColor.Blue,
-                ],
-
-                cardNumber: "1/81",
-                setName: "IRFO",
-
-            });
-
-            this.addHandCard({
-                playerId: "P1",
-                name: "Test Burn Card 1",
-                power: 1,
-                bulk: 1,
-                colors: [CardColor.Red],
-                cardNumber: "1/81",
-                setName: "IRFO",
-            });
-
-            this.addHandCard({
-                playerId: "P1",
-                name: "Test Burn Card 2",
-                power: 2,
-                bulk: 1,
-                colors: [CardColor.Blue],
-                cardNumber: "1/81",
-                setName: "IRFO",
-            });
-
         }
 
         if (options.player2Deck) {
@@ -387,11 +343,6 @@ export class TestGame {
     private notify(): void {
 
         this.revision++;
-
-        console.log(
-            "GAME UPDATED:",
-            this.revision,
-        );
 
         for (const listener of this.listeners) {
             listener();
@@ -453,6 +404,27 @@ export class TestGame {
         } = {},
     ): CardInstance {
         return this.addCardToPile(PileType.MainDeck, options);
+    }
+
+    public addPublicPileCard(
+        options: TestCardDefinitionOptions & {
+
+            playerId?: string;
+
+        } = {},
+    ): CardInstance {
+
+        const card = this.createCard(
+            options.playerId ?? "P1",
+            options,
+        );
+
+        this.getPile(PileType.PublicPile).cards.push(card);
+
+        this.notify();
+
+        return card;
+
     }
 
     public addGateCard(
@@ -588,7 +560,7 @@ export class TestGame {
             throw new Error(result.errors.join("\n") || fallbackMessage);
         }
 
-        const stateSnapshot = structuredClone(this.state);
+        const stateSnapshot = cloneState(this.state);
         const queueSnapshot = [...this.context.commandQueue];
 
         try {
@@ -597,7 +569,22 @@ export class TestGame {
             }
             processEngine(this.context);
         } catch (err) {
-            Object.assign(this.state, structuredClone(stateSnapshot));
+
+            //
+            // Restore in place so player1/player2 keep pointing at the
+            // live player objects.
+            //
+
+            const restored = cloneState(stateSnapshot);
+
+            const { players: restoredPlayers, ...rest } = restored;
+
+            restoredPlayers.forEach((restoredPlayer, index) => {
+                Object.assign(this.state.players[index], restoredPlayer);
+            });
+
+            Object.assign(this.state, rest);
+
             this.context.commandQueue = queueSnapshot;
             throw err;
         } finally {
@@ -907,16 +894,13 @@ export class TestGame {
         playerId = this.state.turn.currentPlayerId,
     ): void {
 
-        processAction(
-            this.context,
-            createPassAction({ id: playerId }),
+        this.runCompiled(
+            compilePass(
+                this.context,
+                { id: playerId },
+            ),
+            "Pass failed.",
         );
-
-        processEngine(
-            this.context,
-        );
-
-        this.notify();
 
     }
 

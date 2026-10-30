@@ -8,7 +8,8 @@ export async function getPublicCards(): Promise<PlayableCard[]> {
 
   const { data, error } = await supabase
     .from("cards")
-    .select(PLAYABLE_CARD_SELECT);
+    .select(PLAYABLE_CARD_SELECT)
+    .eq("pool", "public");
 
   if (error) {
     console.error(error);

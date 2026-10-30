@@ -8,15 +8,34 @@ import { hasPendingInteractions } from "@/lib/game/interactions";
 
 import { checkWinConditions } from "../rules/wincons";
 
+import { processPendingResolutionQueue } from "../resolution";
+
 export function processEngine(
     context: EngineContext,
 ): void {
 
     while (true) {
 
-        const processed = processCommandQueue(
+        let processed = processCommandQueue(
             context,
         );
+
+        //
+        // Resolve "on play" abilities queued by played cards.
+        //
+
+        if (
+            !hasPendingInteractions(context) &&
+            context.pendingResolutions.length > 0
+        ) {
+
+            processed += context.pendingResolutions.length;
+
+            processPendingResolutionQueue(
+                context,
+            );
+
+        }
 
         checkWinConditions(
             context,
@@ -47,7 +66,8 @@ export function processEngine(
         if (
 
             processed === 0 &&
-            context.commandQueue.length === 0
+            context.commandQueue.length === 0 &&
+            context.pendingResolutions.length === 0
 
         ) {
 

@@ -33,7 +33,14 @@ export function checkDeckout(context: EngineContext): string | null {
             .some(zone => zone.stack && zone.stack.cards.length > 0);
 
         if (!hasSetCards) {
-            return player.id;
+            //
+            // This player is out of cards: the opponent wins.
+            //
+            const opponent = context.state.players.find(
+                p => p.id !== player.id,
+            );
+
+            return opponent?.id ?? null;
         }
 
     }

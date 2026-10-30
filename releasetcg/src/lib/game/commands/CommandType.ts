@@ -4,13 +4,6 @@ export enum CommandType {
     Pass = "pass",
 
     CreateGate = "createGate",
-    DestroyGate = "destroyGate",
-
-    CreatePile = "createPile",
-    DestroyPile = "destroyPile",
-
-    ShufflePile = "shufflePile",
-
     DamagePlayer = "damagePlayer",
     HealPlayer = "healPlayer",
 

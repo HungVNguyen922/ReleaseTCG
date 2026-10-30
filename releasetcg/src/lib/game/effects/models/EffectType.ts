@@ -9,5 +9,7 @@ export enum EffectType {
     RevealCards = "revealCards",
 
     Stack = "stack",
+    BooleanChoice = "booleanChoice",
+    ShufflePile = "shufflePile",
 
 }

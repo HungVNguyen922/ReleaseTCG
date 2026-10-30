@@ -24,8 +24,6 @@ export default function OpponentHand() {
         return toPlayableCardFromInstance(card, definition);
     });
 
-    console.log("OPPONENT CARDS:", cards.map(c => c.id));
-
     const isActive = activePlayerId === "P2";
 
     return (

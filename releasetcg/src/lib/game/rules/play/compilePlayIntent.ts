@@ -22,6 +22,10 @@ export function compilePlayIntent(
     intent: PlayIntent,
 ): RuleResult {
 
+    if (context.state.parry) {
+        return failure("A parry window is open.");
+    }
+
     if (intent.player.id !== context.state.turn.currentPlayerId) {
         return failure("It's not your turn.");
     }

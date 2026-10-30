@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { CommunityDeck } from "@/types/community";
 import { getCommunityDeck } from "@/utils/community";
+import { createClient } from "@/utils/supabase/client";
 
 import { useCards } from "@/app/(app)/deckbuilder/hooks/useCards";
 import { useCommunityDeck } from "../hooks/useCommunityDeck";
@@ -27,6 +28,17 @@ export default function CommunityDeckPage({
 
   const [hoverAnchor, setHoverAnchor] =
     useState<DOMRect | null>(null);
+
+  const [currentUserId, setCurrentUserId] =
+    useState<string | null>(null);
+
+  useEffect(() => {
+    createClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        setCurrentUserId(data.user?.id ?? null);
+      });
+  }, []);
 
   const deckOverviewRef =
     useRef<HTMLDivElement>(null);
@@ -84,6 +96,7 @@ export default function CommunityDeckPage({
           title={deck.title}
           author={deck.author}
           description={deck.description}
+          canEdit={currentUserId !== null && currentUserId === deck.ownerId}
           onSaveDescription={handleSaveDescription}
           onDelete={handleDelete}
           onExportCode={handleExportCode}

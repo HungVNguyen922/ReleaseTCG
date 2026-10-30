@@ -1,14 +1,9 @@
 import { EngineContext } from "@/lib/game/EngineContext";
 
+import { PureUnit } from "@/lib/game/models/PureUnit";
 import { CardInstance } from "@/lib/game/models";
 
 import { isPure, isPseudoPure } from "@/lib/game/queries";
-
-export interface PureUnit {
-
-    cards: CardInstance[];
-
-}
 
 export function findPureUnits(
     context: EngineContext,

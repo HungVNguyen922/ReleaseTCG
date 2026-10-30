@@ -9,6 +9,7 @@ import {
     processBurnAction, processConstructAction, processChainAction, processBoundAction, processSplitAction, processLiminalAction,
     processSetAction,
     processPassAction,
+    processParryAction,
 } from "./plays";
 
 
@@ -85,7 +86,12 @@ export function processAction(
         case ActionType.Pass:
             processPassAction(context, action);
             return;
-            
+
+        case ActionType.Parry:
+        case ActionType.DeclineParry:
+            processParryAction(context, action);
+            return;
+
         default:
 
             throw new Error(

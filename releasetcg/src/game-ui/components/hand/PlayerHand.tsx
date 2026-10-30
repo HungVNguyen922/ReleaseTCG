@@ -19,13 +19,10 @@ export default function PlayerHand() {
     const { engine, selectedCardIds, toggleCard, activePlayerId } = useGame();
     const revision = useGameRevision();
 
-    console.log("ENGINE USED BY PlayerHand:", engine.debugId);
     const cards = engine.hand("P1").map(card => {
         const definition = engine.cardDefinition(card);
         return toPlayableCardFromInstance(card, definition);
     });
-
-    console.log("PLAYERHAND CARDS:", cards.map(c => c.id));
 
     const isActive = activePlayerId === "P1";
 

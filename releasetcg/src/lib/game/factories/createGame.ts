@@ -12,10 +12,6 @@ import {
 } from "./index";
 
 import {
-
-} from "./createPriorityState";
-
-import {
     createTurnState,
 } from "../turn";
 
@@ -93,6 +89,8 @@ export function createGame(
         priority: createPriorityState(
             options.firstPlayerId,
         ),
+
+        parry: null,
 
         winnerId: null,
 

@@ -9,3 +9,4 @@ export * from "./compileLiminal";
 export * from "./compileSet";
 
 export * from "./compileParry";
+export * from "./compilePass";

@@ -2,7 +2,7 @@ import { EngineContext } from "@/lib/game/EngineContext";
 
 import { CardInstance } from "@/lib/game/models";
 
-import { PureUnit } from "./findPureUnits";
+import { PureUnit } from "@/lib/game/models/PureUnit";
 
 import {
     isPure,

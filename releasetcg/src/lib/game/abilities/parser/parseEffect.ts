@@ -6,6 +6,8 @@ import {
     createDamageEffect,
     createDrawCardsEffect,
     createStackEffect,
+    createBooleanChoiceEffect,
+    createShufflePileEffect,
 
 } from "@/lib/game/effects";
 
@@ -130,6 +132,27 @@ export function parseEffect(
             );
 
         }
+
+        case EffectType.BooleanChoice:
+        {
+
+            assertString(
+                value.text,
+                "BooleanChoice text missing.",
+            );
+
+            return createBooleanChoiceEffect(
+                value.text,
+                modifiers,
+            );
+
+        }
+
+        case EffectType.ShufflePile:
+
+            return createShufflePileEffect(
+                modifiers,
+            );
 
         default:
 

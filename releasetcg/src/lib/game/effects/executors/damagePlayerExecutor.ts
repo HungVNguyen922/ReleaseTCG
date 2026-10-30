@@ -33,7 +33,7 @@ export function damagePlayerExecutor(
 
     }
 
-    player.health -= command.amount;
+    player.health = Math.max(0, player.health - command.amount);
 
     emitEvent(
 

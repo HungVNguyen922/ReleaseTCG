@@ -19,21 +19,21 @@ export function EditProfileModal({
   profile,
   onClose,
 }: {
-  profile: Profile;
+  profile: Profile | null;
   onClose: () => void;
 }) {
   const [editingUsername, setEditingUsername] = useState(false);
 
   const [username, setUsername] = useState(
-    profile.username ?? ""
+    profile?.username ?? ""
   );
 
   const [draftUsername, setDraftUsername] = useState(
-    profile.username ?? ""
+    profile?.username ?? ""
   );
 
   const [bio, setBio] = useState(
-    profile.bio ?? ""
+    profile?.bio ?? ""
   );
 
   const [saving, setSaving] = useState(false);
@@ -51,14 +51,10 @@ export function EditProfileModal({
     const { error } =
       await sendPasswordVerificationCode();
     
-    console.log("sendPasswordVerificationCode error:", error);
-
     if (error) {
       setPasswordError(error.message);
       return;
     }
-
-    console.log("Verification code requested successfully");
 
     setCodeSent(true);
     setPasswordError("");

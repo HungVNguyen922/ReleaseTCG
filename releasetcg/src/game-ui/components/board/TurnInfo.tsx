@@ -29,7 +29,7 @@ export default function TurnInfo() {
 
             <div className="mt-2 border-t pt-2 text-sm font-normal capitalize text-muted-foreground">
 
-                {turn.currentPlayerId}'s {turn.phase} phase
+                {turn.currentPlayerId}&apos;s {turn.phase} phase
 
             </div>
 

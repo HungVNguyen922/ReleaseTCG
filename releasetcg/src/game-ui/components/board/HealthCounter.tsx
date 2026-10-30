@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useGame } from "../../providers/GameProvider";
 import { useGameRevision } from "../../hooks/useGameRevision";
@@ -16,22 +16,29 @@ export default function HealthCounter({ playerId }: Props) {
     const player = engine.state.players.find(p => p.id === playerId);
     const health = player?.health ?? 0;
 
-    const previousHealth = useRef(health);
+    const [previousHealth, setPreviousHealth] = useState(health);
     const [delta, setDelta] = useState<number | null>(null);
     const [flash, setFlash] = useState<"damage" | "heal" | null>(null);
     const [changeId, setChangeId] = useState(0);
 
-    useEffect(() => {
-        const diff = health - previousHealth.current;
-        previousHealth.current = health;
+    //
+    // Derive the change while rendering (React-supported pattern)
+    // instead of setting state inside an effect.
+    //
 
-        if (diff === 0) {
-            return;
-        }
+    if (health !== previousHealth) {
+        const diff = health - previousHealth;
 
+        setPreviousHealth(health);
         setDelta(diff);
         setFlash(diff < 0 ? "damage" : "heal");
         setChangeId(id => id + 1);
+    }
+
+    useEffect(() => {
+        if (changeId === 0) {
+            return;
+        }
 
         const timeout = setTimeout(() => {
             setDelta(null);
@@ -39,7 +46,7 @@ export default function HealthCounter({ playerId }: Props) {
         }, 900);
 
         return () => clearTimeout(timeout);
-    }, [health]);
+    }, [changeId]);
 
     return (
         <div className="relative flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5">

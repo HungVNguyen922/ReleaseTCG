@@ -3,6 +3,28 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CommunityDeck } from "@/types/community";
 import type { Deck } from "@/types/decks";
 
+type NameRow<T> = T | T[] | null;
+
+type CommunityDeckRow = {
+  id: string;
+  title: string;
+  description: string;
+  deck: Deck;
+  owner_id: string;
+  cover_card_id: string | null;
+  created_at: string;
+  updated_at: string;
+  owner: NameRow<{ username: string | null }>;
+  cover: NameRow<{
+    CardNumber: string | null;
+    SetName: string | null;
+  }>;
+};
+
+function first<T>(value: NameRow<T>): T | null {
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
 export async function getCommunityDeck(
   supabase: SupabaseClient,
   id: string
@@ -15,6 +37,7 @@ export async function getCommunityDeck(
       description,
       deck,
       owner_id,
+      cover_card_id,
       created_at,
       updated_at,
 
@@ -34,11 +57,11 @@ export async function getCommunityDeck(
     throw new Error("Community deck not found.");
   }
 
-  const post = data as any;
+  const post = data as unknown as CommunityDeckRow;
 
   const storedDeck = post.deck as Deck;
 
-  const cover = Array.isArray(post.cover) ? post.cover[0] : post.cover;
+  const cover = first(post.cover);
 
   return {
     id: post.id,
@@ -53,7 +76,7 @@ export async function getCommunityDeck(
       extraDeck: storedDeck.extraDeck,
     },
 
-    author: post.owner?.username ?? "Unknown",
+    author: first(post.owner)?.username ?? "Unknown",
     ownerId: post.owner_id,
 
     coverCardId: post.cover_card_id ?? storedDeck.coverCardId ?? null,

@@ -43,10 +43,14 @@ export const cardPlayedEventListener: EventListener<CardMovedEvent> = {
         event,
     ) {
 
-        if (
-            event.from.locationType !== LocationType.Pile ||
-            event.from.pileType !== PileType.Hand
-        ) {
+        const fromHand =
+            event.from.locationType === LocationType.Pile &&
+            event.from.pileType === PileType.Hand;
+
+        const fromSet =
+            event.from.locationType === LocationType.Set;
+
+        if (!fromHand && !fromSet) {
             return;
         }
 

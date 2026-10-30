@@ -42,9 +42,7 @@ export function drawCardsExecutor(
 
         locationType: LocationType.Pile,
 
-        pileType: PileType.MainDeck,
-
-        playerId: operation.player.id,
+        pileType: PileType.PublicPile,
 
     };
 

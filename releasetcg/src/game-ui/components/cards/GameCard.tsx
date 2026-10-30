@@ -24,7 +24,6 @@ export default function GameCard({
 
 }: Props) {
 
-    console.log("GameCard", { card, onClick, className });
     return (
 
         <div

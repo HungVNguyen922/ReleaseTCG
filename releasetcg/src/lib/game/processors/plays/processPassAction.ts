@@ -4,7 +4,10 @@ import { PassAction } from "../../actions/PassAction";
 
 import { findPlayer } from "../../queries";
 
-import { createMoveCardCommand, createBeginPhaseCommand } from "@/lib/game/commands";
+import {
+    createBeginPhaseCommand,
+    createPassCommand,
+} from "@/lib/game/commands";
 
 import {
     markActionTaken,
@@ -28,24 +31,25 @@ export function processPassAction(
         );
     }
 
-    if (player.passesRemaining <= 0) {
-        throw new Error(
-            "No passes remaining.",
-        );
-    }
+    //
+    // The pass reducer spends a pass, or ends the game
+    // if the player has none left.
+    //
 
     context.commandQueue.push(
-        
-        createBeginPhaseCommand(
-
-            TurnPhase.Fill,
-
-        ),
-
+        createPassCommand(),
     );
 
-    player.passesRemaining -= 1;
+    if (player.passesRemaining <= 0) {
+        return;
+    }
 
     markActionTaken(context);
+
+    context.commandQueue.push(
+        createBeginPhaseCommand(
+            TurnPhase.Fill,
+        ),
+    );
 
 }

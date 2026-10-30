@@ -15,16 +15,11 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { LayoutBottomIcon, AudioWave01Icon, CommandIcon, ComputerTerminalIcon, RoboticIcon, BookOpen02Icon, Settings05Icon, CropIcon, PieChartIcon, MapsIcon, HomeIcon } from "@hugeicons/core-free-icons"
 import Link from "next/link"
-import { User } from "@supabase/supabase-js/dist/index.cjs"
+import type { User } from "@supabase/supabase-js"
 import { Profile } from "@/types/profiles"
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Play",
@@ -156,8 +151,8 @@ export function AppSidebar({
   profile,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  user?: User
-  profile?: Profile
+  user?: User | null
+  profile?: Profile | null
 }) {
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -180,9 +175,9 @@ export function AppSidebar({
       <SidebarFooter>
         <NavUser
           user={{
-            name: data.user?.name ?? data.user?.email,
-            email: data.user?.email,
-            avatar: data.user?.avatar,
+            name: profile?.username ?? user?.email ?? "Guest",
+            email: user?.email ?? "",
+            avatar: "",
           }}
         />
       </SidebarFooter>

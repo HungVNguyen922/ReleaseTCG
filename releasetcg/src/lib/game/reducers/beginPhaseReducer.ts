@@ -25,6 +25,8 @@ export function beginPhaseReducer(
         return;
     }
 
+    context.state.turn.phase = command.phase;
+
     emitEvent(
         context,
         createPhaseStartedEvent(

@@ -11,6 +11,8 @@ export * from "./drawCardsReducer"
 export * from "./enforceMaxHandReducer"
 export * from "./endTurnReducer"
 export * from "./damagePlayerReducer"
+export * from "./healPlayerReducer";
+export * from "./revealCardsReducer";
 export * from "./openParryWindowReducer";
 export * from "./playParryReducer";
 export * from "./resolveParryChainReducer";

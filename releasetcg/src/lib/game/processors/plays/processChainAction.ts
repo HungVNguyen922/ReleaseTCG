@@ -2,7 +2,7 @@ import { EngineContext } from "@/lib/game/EngineContext";
 
 import { ChainAction } from "../../actions/ChainAction";
 
-import { createMoveCardCommand, createBeginAttackCommand, createBeginPhaseCommand } from "@/lib/game/commands";
+import { createMoveCardCommand, createOpenParryWindowCommand } from "@/lib/game/commands";
 
 import {
     markActionTaken,
@@ -48,7 +48,11 @@ export function processChainAction(
     }
 
     context.commandQueue.push(
-        createBeginAttackCommand({ gate: action.gate }),
+        createOpenParryWindowCommand(
+            action.player,
+            [action.gate],
+            [...action.openingUnit, ...action.chain],
+        ),
     );
 
     incrementCardsPlayedThisTurn(

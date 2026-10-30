@@ -43,6 +43,16 @@ export async function createDeck(
       .insert(deckCards);
 
     if (error) {
+      //
+      // Supabase has no client-side transactions: remove the
+      // deck row so a failed save doesn't leave an empty deck behind.
+      //
+
+      await supabase
+        .from("decks")
+        .delete()
+        .eq("id", createdDeck.id);
+
       throw error;
     }
   }

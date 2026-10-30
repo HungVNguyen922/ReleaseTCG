@@ -5,6 +5,7 @@ import {
     EffectModifierType,
 
     createAlwaysModifier,
+    createOptionalModifier,
 
 } from "@/lib/game/effects";
 
@@ -44,6 +45,17 @@ export function parseModifier(
         case EffectModifierType.Always:
 
             return createAlwaysModifier();
+
+        case EffectModifierType.Optional:
+
+            assertString(
+                value.message,
+                "Optional modifier message missing.",
+            );
+
+            return createOptionalModifier(
+                value.message,
+            );
 
         default:
 

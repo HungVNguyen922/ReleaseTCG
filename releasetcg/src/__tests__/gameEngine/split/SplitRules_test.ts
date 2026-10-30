@@ -59,7 +59,7 @@ describe("Split Rules", () => {
                     id: "P1",
                 },
 
-                playType: PlayType.Construct,
+                playType: PlayType.Split,
 
                 cards: [
                     game.reference(red1),
@@ -71,9 +71,15 @@ describe("Split Rules", () => {
                         PlayerSide.Bottom,
                         BoardPosition.Center,
                     ),
+                    game.gateReference(
+                        PlayerSide.Top,
+                        BoardPosition.Center,
+                    ),
                 ],
             },
         );
+
+        expect(result.success).toBe(true);
 
     });
 
@@ -131,7 +137,7 @@ describe("Split Rules", () => {
                     id: "P1",
                 },
 
-                playType: PlayType.Construct,
+                playType: PlayType.Split,
 
                 cards: [
                     game.reference(gb1),
@@ -143,9 +149,15 @@ describe("Split Rules", () => {
                         PlayerSide.Bottom,
                         BoardPosition.Center,
                     ),
+                    game.gateReference(
+                        PlayerSide.Top,
+                        BoardPosition.Center,
+                    ),
                 ],
             },
         );
+
+        expect(result.success).toBe(true);
     });
 
 
@@ -194,7 +206,7 @@ describe("Split Rules", () => {
                     id: "P1",
                 },
 
-                playType: PlayType.Construct,
+                playType: PlayType.Split,
 
                 cards: [
                     game.reference(red),
@@ -206,9 +218,15 @@ describe("Split Rules", () => {
                         PlayerSide.Bottom,
                         BoardPosition.Center,
                     ),
+                    game.gateReference(
+                        PlayerSide.Top,
+                        BoardPosition.Center,
+                    ),
                 ],
             },
         );
+
+        expect(result.success).toBe(false);
 
     });
 

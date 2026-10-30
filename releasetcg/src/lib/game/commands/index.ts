@@ -1,13 +1,11 @@
 export * from "./BaseCommand";
 export * from "./GameCommand";
-export * from "./EngineCommand";
 
 export * from "./MoveCardCommand";
 export * from "./MoveGateCommand";
 export * from "./PassCommand";
 
 export * from "./CreateGateCommand";
-export * from "./DestroyGateCommand";
 
 export * from "./StartPriorityCommand";
 export * from "./EndPriorityCommand";

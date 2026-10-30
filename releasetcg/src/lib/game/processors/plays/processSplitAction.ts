@@ -11,8 +11,6 @@ import {
     incrementCardsPlayedThisTurn,
 } from "@/lib/game/turn";
 
-import { TurnPhase } from "../../models";
-
 export function processSplitAction(
 
     context: EngineContext,
@@ -50,11 +48,9 @@ export function processSplitAction(
 
     }
 
-    for (const gate of action.gates) {
-        context.commandQueue.push(
-            createOpenParryWindowCommand(action.player, action.gates, action.cards),
-        );
-    }
+    context.commandQueue.push(
+        createOpenParryWindowCommand(action.player, action.gates, action.cards),
+    );
 
     incrementCardsPlayedThisTurn(context, action.cards.length);
 }

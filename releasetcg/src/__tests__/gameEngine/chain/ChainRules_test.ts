@@ -102,6 +102,8 @@ describe("Chain Rules", () => {
 
         const result = game.compilePlay(intent);
 
+        expect(result.success).toBe(false);
+
     });
 
     it("rejects broken color chains", () => {
@@ -162,6 +164,8 @@ describe("Chain Rules", () => {
         );
 
         const result = game.compilePlay(intent);
+
+        expect(result.success).toBe(false);
 
     });
 

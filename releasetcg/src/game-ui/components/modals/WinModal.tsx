@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useGame } from "../../providers/GameProvider";
 import { useGameRevision } from "../../hooks/useGameRevision";
@@ -22,13 +22,19 @@ export default function WinModal() {
 
     const winnerId = engine.state.winnerId;
 
-    const [dismissed, setDismissed] = useState(false);
+    //
+    // Remember which win was dismissed so a new winner (after a reset)
+    // re-opens the dialog without resetting state in an effect.
+    //
 
-    useEffect(() => {
-        setDismissed(false);
-    }, [winnerId]);
+    const [dismissedWinnerId, setDismissedWinnerId] =
+        useState<string | null>(null);
 
-    const open = !!winnerId && !dismissed;
+    const open = !!winnerId && dismissedWinnerId !== winnerId;
+
+    function setDismissed(dismissed: boolean) {
+        setDismissedWinnerId(dismissed ? winnerId : null);
+    }
 
     function handlePlayAgain() {
         resetGame();

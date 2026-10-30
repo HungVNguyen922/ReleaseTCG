@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import {
+  requireAdminApi,
+  errorMessage,
+} from "@/utils/supabase/requireAdminApi";
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +12,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing card id" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const guard = await requireAdminApi();
+
+    if ("error" in guard) {
+      return guard.error;
+    }
+
+    const { supabase } = guard;
 
     const { error } = await supabase
       .from("cards")
@@ -48,7 +57,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
   }
 }

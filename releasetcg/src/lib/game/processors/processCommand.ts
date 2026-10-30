@@ -16,6 +16,8 @@ import {
     enforceMaxHandReducer,
     endTurnReducer,
     damagePlayerReducer,
+    healPlayerReducer,
+    revealCardsReducer,
     openParryWindowReducer,
     playParryReducer,
     resolveParryChainReducer,
@@ -91,11 +93,19 @@ export function processCommand(
         case CommandType.DamagePlayer:
             damagePlayerReducer(context, command);
             return;
-        
-            
+
+        case CommandType.HealPlayer:
+            healPlayerReducer(context, command);
+            return;
+
+        case CommandType.RevealCards:
+            revealCardsReducer(context, command);
+            return;
+
+
         default:
             throw new Error(
-                `Unhandled command: ${command.type}`,
+                `Unhandled command: ${(command as { type: string }).type}`,
             );
 
     }

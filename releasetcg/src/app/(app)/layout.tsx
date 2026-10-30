@@ -12,12 +12,12 @@ export default async function AppLayout({
 }: {
   children: ReactNode;
 }) {
-  const { profile } = await getUserProfile();
+  const { user, profile } = await getUserProfile();
 
   return (
     <TooltipProvider>
       <SidebarProvider>
-        <AppSidebar profile={profile} />
+        <AppSidebar user={user} profile={profile} />
 
         <SidebarInset>
           {children}

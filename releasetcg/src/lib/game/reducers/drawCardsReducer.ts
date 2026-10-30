@@ -69,10 +69,11 @@ export function drawCardsReducer(
         );
 
     const drawn = [];
+    const moves = [];
 
     for (const card of availableCards) {
 
-        context.commandQueue.push(
+        moves.push(
 
             createMoveCardCommand(
 
@@ -91,6 +92,13 @@ export function drawCardsReducer(
         drawn.push({ id: card.id });
 
     }
+
+    //
+    // Run the moves before anything already queued
+    // (max hand, end of turn) so drawn cards are in hand first.
+    //
+
+    context.commandQueue.unshift(...moves);
 
     emitEvent(
         context,

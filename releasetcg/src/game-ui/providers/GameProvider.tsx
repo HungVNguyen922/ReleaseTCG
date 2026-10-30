@@ -149,6 +149,18 @@ export function GameProvider({
 
     }
 
+    // Instant is the default resting phase. Action only exists so
+    // compilePlayIntent / compilePass have something to gate on, so flip
+    // into it the moment a real Play or Pass is attempted.
+    function ensureActionPhase() {
+        if (engine.context.state.turn.phase === TurnPhase.Instant) {
+            engine.context.commandQueue.push(
+                createBeginPhaseCommand(TurnPhase.Action),
+            );
+            processEngine(engine.context);
+        }
+    }
+
     function playCards(
         playType: PlayType,
         cardIds: string[],
@@ -167,17 +179,8 @@ export function GameProvider({
             cards.push(card);
         }
 
-        // Instant is the default resting phase. Action only exists so
-        // compilePlayIntent has something to gate on, so flip into it
-        // silently the moment a real Play (not a Set/Load) is attempted.
-        if (
-            playType !== PlayType.Set &&
-            engine.context.state.turn.phase === TurnPhase.Instant
-        ) {
-            engine.context.commandQueue.push(
-                createBeginPhaseCommand(TurnPhase.Action),
-            );
-            processEngine(engine.context);
+        if (playType !== PlayType.Set) {
+            ensureActionPhase();
         }
 
         const intent = {
@@ -204,6 +207,7 @@ export function GameProvider({
         if (activePlay === "pass") {
 
             try {
+                ensureActionPhase();
                 engine.pass(activePlayerId);
                 clearSelection();
             } catch (err) {

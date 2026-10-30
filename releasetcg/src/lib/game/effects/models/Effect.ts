@@ -14,6 +14,14 @@ import {
     StackEffect,
 } from "./StackEffect";
 
+import {
+    BooleanChoiceEffect,
+} from "./BooleanChoiceEffect";
+
+import {
+    ShufflePileEffect,
+} from "./ShufflePileEffect";
+
 export type Effect =
 
     | DrawCardsEffect
@@ -22,4 +30,6 @@ export type Effect =
 
     | RevealCardsEffect
 
-    | StackEffect;
+    | StackEffect
+    | BooleanChoiceEffect
+    | ShufflePileEffect;

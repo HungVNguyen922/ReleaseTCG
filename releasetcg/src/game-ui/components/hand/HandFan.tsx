@@ -70,11 +70,6 @@ export default function HandFan({
         isHovered &&
         draggingCardId === null;
 
-    console.log(
-        "HANDFAN PROPS:",
-        cards.map(card => card.id),
-    );
-    
     function handleDragStart(
         card: PlayableCard,
         event: React.DragEvent<HTMLDivElement>,

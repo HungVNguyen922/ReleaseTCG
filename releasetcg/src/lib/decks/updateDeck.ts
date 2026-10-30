@@ -35,6 +35,16 @@ export async function updateDeck(
     throw deckError;
   }
 
+  // Snapshot current contents so a failed rewrite can be undone
+  const { data: previousRows, error: previousError } = await supabase
+    .from("deck_cards")
+    .select("deck_id, card_id, count, zone")
+    .eq("deck_id", deckId);
+
+  if (previousError) {
+    throw previousError;
+  }
+
   // Remove existing deck contents
   const { error: deleteError } = await supabase
     .from("deck_cards")
@@ -68,6 +78,11 @@ export async function updateDeck(
       .insert(rows);
 
     if (insertError) {
+      // Best-effort rollback: put the previous contents back.
+      if (previousRows && previousRows.length > 0) {
+        await supabase.from("deck_cards").insert(previousRows);
+      }
+
       throw insertError;
     }
   }

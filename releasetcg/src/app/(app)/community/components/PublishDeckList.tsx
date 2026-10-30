@@ -16,7 +16,7 @@ export default function PublishDeckList({
   if (decks.length === 0) {
     return (
       <div className="rounded-lg border p-8 text-center text-muted-foreground">
-        You don't have any saved decks yet.
+        You don&apos;t have any saved decks yet.
       </div>
     );
   }
