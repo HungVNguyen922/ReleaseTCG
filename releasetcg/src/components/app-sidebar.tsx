@@ -30,6 +30,10 @@ const data = {
       isActive: true,
       items: [
         {
+          title: "Sandbox",
+          url: "/sandbox",
+        },
+        {
           title: "Create Lobby",
           url: "#",
         },
