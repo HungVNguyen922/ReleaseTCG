@@ -81,6 +81,7 @@ export default function CardView({
                 }
 
                 event.preventDefault();
+                event.stopPropagation();
 
                 openMenu(
                     event.clientX,

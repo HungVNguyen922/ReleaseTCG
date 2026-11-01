@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { useState } from "react";
 
 import type { MoveOptions, ZoneKey } from "@/lib/sandbox";
@@ -9,9 +9,17 @@ import { DRAG_MIME, useSandbox } from "../SandboxProvider";
 
 interface Props {
 
-    zone: ZoneKey;
+    /** Where dropped cards go. Not needed when `onCards` is given. */
+    zone?: ZoneKey;
 
     options?: MoveOptions;
+
+    /** Handle the drop yourself instead of moving cards to `zone`. */
+    onCards?: (cardIds: string[]) => void;
+
+    onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+
+    title?: string;
 
     className?: string;
 
@@ -23,6 +31,9 @@ interface Props {
 export default function DropZone({
     zone,
     options,
+    onCards,
+    onContextMenu,
+    title,
     className = "",
     children,
 }: Props) {
@@ -33,6 +44,8 @@ export default function DropZone({
 
     return (
         <div
+            title={title}
+            onContextMenu={onContextMenu}
             onDragOver={event => {
 
                 if (event.dataTransfer.types.includes(DRAG_MIME)) {
@@ -59,7 +72,11 @@ export default function DropZone({
 
                     const ids = JSON.parse(raw) as string[];
 
-                    dropCards(ids, zone, options);
+                    if (onCards) {
+                        onCards(ids);
+                    } else if (zone) {
+                        dropCards(ids, zone, options);
+                    }
 
                 } catch {
                     // Not one of our drags; ignore it.

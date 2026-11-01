@@ -1,10 +1,14 @@
 import {
     adjustHealth,
+    clearChain,
+    currentPlayGate,
     describeMove,
     drawCards,
     endTurn,
     flipCards,
     moveCards,
+    playParry,
+    resolveChainCard,
     shuffleZone,
     withLog,
     type MoveOptions,
@@ -134,9 +138,77 @@ export class SandboxGame {
             return;
         }
 
-        this.commit(
-            withLog(moved, describeMove(this.state, cardIds, to)),
+        const played = moved.chain.plays.some(
+            id => !this.state.chain.plays.includes(id),
         );
+
+        this.commit(
+            withLog(
+                moved,
+                describeMove(this.state, cardIds, to, played ? "Played" : "Moved"),
+            ),
+        );
+
+    }
+
+    /** Play cards as parries onto the gate of the current play. */
+    public parry(cardIds: string[]): void {
+
+        const gate = currentPlayGate(this.state);
+
+        if (!gate) {
+            return;
+        }
+
+        const moved = playParry(this.state, cardIds);
+
+        if (moved === this.state) {
+            return;
+        }
+
+        this.commit(
+            withLog(
+                moved,
+                describeMove(this.state, cardIds, gate, "Parried with"),
+            ),
+        );
+
+    }
+
+    /** Mark one card of the chain as resolved (it stays where it is). */
+    public resolveCard(cardId: string): void {
+
+        const next = resolveChainCard(this.state, cardId);
+
+        if (next === this.state) {
+            return;
+        }
+
+        this.commit(withLog(next, "Resolved a card in the chain"));
+
+    }
+
+    public resolveChain(): void {
+
+        const next = clearChain(this.state);
+
+        if (next === this.state) {
+            return;
+        }
+
+        this.commit(withLog(next, "Resolved the chain"));
+
+    }
+
+    /**
+     * Add a line to the log without creating an undo step
+     * (e.g. "P1 looked at the top 3 cards").
+     */
+    public note(message: string): void {
+
+        this.state = withLog(this.state, message);
+
+        this.notify();
 
     }
 

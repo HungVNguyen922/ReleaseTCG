@@ -13,10 +13,15 @@ import CardView from "./CardView";
 
 import { useSandbox } from "../SandboxProvider";
 
-/** Full-screen view of one zone (a pile, the gap, or a gate/set stack). */
+/**
+ * Full-screen view of one zone, or of just its top/bottom few cards when
+ * opened through "Look at" (so the rest of the deck stays unknown).
+ */
 export default function ZoneBrowser() {
 
     const {
+        peek,
+        closePeek,
         browsing,
         browse,
         state,
@@ -28,13 +33,20 @@ export default function ZoneBrowser() {
         dropCards,
     } = useSandbox();
 
-    if (!browsing) {
+    const zone = peek?.zone ?? browsing;
+
+    if (!zone) {
         return null;
     }
 
-    const zone = browsing;
+    const all = state.zones[zone];
 
-    const cards = state.zones[zone];
+    // A peek only shows the cards that were looked at (if still there).
+    const cards = peek
+        ? peek.ids.flatMap(id => all.filter(card => card.id === id))
+        : all;
+
+    const close = () => (peek ? closePeek() : browse(null));
 
     const { kind } = parseZone(zone);
 
@@ -58,12 +70,14 @@ export default function ZoneBrowser() {
                 <div className="flex flex-wrap items-center justify-between gap-2">
 
                     <h2 className="text-lg font-bold capitalize">
-                        {describeZone(zone)} ({cards.length})
+                        {peek
+                            ? `${peek.side === "top" ? "Top" : "Bottom"} ${cards.length} of ${describeZone(zone)}`
+                            : `${describeZone(zone)} (${cards.length})`}
                     </h2>
 
                     <div className="flex flex-wrap items-center gap-1">
 
-                        <Button size="sm" variant="outline" onClick={() => game.shuffle(zone)} disabled={cards.length < 2}>
+                        <Button size="sm" variant="outline" onClick={() => game.shuffle(zone)} disabled={all.length < 2}>
                             Shuffle
                         </Button>
 
@@ -71,12 +85,12 @@ export default function ZoneBrowser() {
                             size="sm"
                             variant="outline"
                             onClick={() => dropCards(topN(1), handZone(viewer))}
-                            disabled={cards.length === 0}
+                            disabled={cards.length === 0 || peek?.side === "bottom"}
                         >
                             Take top to hand
                         </Button>
 
-                        <Button size="sm" variant="outline" onClick={() => browse(null)}>
+                        <Button size="sm" variant="outline" onClick={close}>
                             Close
                         </Button>
 
@@ -125,6 +139,7 @@ export default function ZoneBrowser() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
+                    {peek && "Only these cards were looked at; the rest of the pile stays hidden. "}
                     Top of the {kind === "gate" || kind === "set" ? "stack" : "pile"} is first. Click cards to select; right-click for more options.
                 </p>
 

@@ -47,9 +47,26 @@ export interface SandboxCard {
 
 }
 
+/**
+ * The pending Play and the Parries answering it, as card ids in the
+ * order they were played. Only cards currently sitting on a gate stay in
+ * here, so moving a card away resolves it automatically.
+ */
+export interface ChainState {
+
+    /** Cards played this turn (hand or set zone -> gate), oldest first. */
+    plays: string[];
+
+    /** Parries played in response, oldest first. */
+    parries: string[];
+
+}
+
 export interface SandboxState {
 
     zones: Record<ZoneKey, SandboxCard[]>;
+
+    chain: ChainState;
 
     health: Record<SeatId, number>;
 

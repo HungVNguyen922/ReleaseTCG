@@ -15,14 +15,22 @@ interface Props {
 /** A gate or set zone: shows the top card, with a badge to browse the stack. */
 export default function StackZone({ zone, label }: Props) {
 
-    const { state, browse } = useSandbox();
+    const { state, openMenu } = useSandbox();
 
     const cards = state.zones[zone];
 
     const top = cards[0];
 
     return (
-        <DropZone zone={zone} className="relative p-1">
+        <DropZone
+            zone={zone}
+            className="relative p-1"
+            title="Right-click to look at cards in this stack"
+            onContextMenu={event => {
+                event.preventDefault();
+                openMenu(event.clientX, event.clientY, [], zone);
+            }}
+        >
 
             <div className="aspect-[5/7] h-[var(--card-h)]">
 
@@ -36,15 +44,12 @@ export default function StackZone({ zone, label }: Props) {
 
             </div>
 
-            {cards.length > 0 && (
-                <button
-                    type="button"
-                    onClick={() => browse(zone)}
-                    title="Browse this stack"
-                    className="absolute -right-1 -top-1 z-10 min-w-6 rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground shadow"
+            {cards.length > 1 && (
+                <span
+                    className="pointer-events-none absolute -right-1 -top-1 z-10 min-w-6 rounded-full bg-primary px-1.5 text-center text-xs font-bold text-primary-foreground shadow"
                 >
                     {cards.length}
-                </button>
+                </span>
             )}
 
         </DropZone>

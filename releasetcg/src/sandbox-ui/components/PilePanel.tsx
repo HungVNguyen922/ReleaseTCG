@@ -34,7 +34,7 @@ export default function PilePanel({
     drawable = false,
 }: Props) {
 
-    const { state, game, viewer, browse } = useSandbox();
+    const { state, game, viewer, browse, openMenu } = useSandbox();
 
     const [amount, setAmount] = useState(1);
 
@@ -49,7 +49,15 @@ export default function PilePanel({
                 {title}
             </span>
 
-            <DropZone zone={zone} className="p-1">
+            <DropZone
+                zone={zone}
+                className="p-1"
+                title="Right-click to look at the top or bottom cards"
+                onContextMenu={event => {
+                    event.preventDefault();
+                    openMenu(event.clientX, event.clientY, [], zone);
+                }}
+            >
 
                 <div className="aspect-[5/7] h-[var(--card-h)]">
 
@@ -101,14 +109,27 @@ export default function PilePanel({
                     </>
                 )}
 
-                <Button
-                    size="xs"
-                    variant="outline"
-                    onClick={() => browse(zone)}
-                    disabled={cards.length === 0}
-                >
-                    Browse ({cards.length})
-                </Button>
+                {/*
+                  The draw pile has no Browse button: looking through it
+                  reveals too much. Right-click it to look at the top or
+                  bottom few cards instead.
+                */}
+                {!drawable && (
+                    <Button
+                        size="xs"
+                        variant="outline"
+                        onClick={() => browse(zone)}
+                        disabled={cards.length === 0}
+                    >
+                        Browse ({cards.length})
+                    </Button>
+                )}
+
+                {drawable && (
+                    <span className="text-xs text-muted-foreground">
+                        {cards.length} cards
+                    </span>
+                )}
 
             </div>
 
