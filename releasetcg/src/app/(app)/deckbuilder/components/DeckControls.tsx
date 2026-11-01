@@ -9,14 +9,14 @@ type Props = {
 
 export default function DeckControls({ activeZone, setActiveZone }: Props) {
   return (
-    <div className="flex items-center justify-between rounded-lg border p-3">
+    <div className="flex items-center justify-between gap-2 rounded-lg border p-2 md:p-3">
       <div className="flex flex-col">
         <div className="text-sm">
           <span className="text-muted-foreground">Mode: </span>
           <span className="font-medium capitalize">{activeZone}</span>
         </div>
 
-        <div className="text-xs text-muted-foreground">
+        <div className="hidden text-xs text-muted-foreground md:block [@media(max-height:520px)]:hidden!">
           {activeZone === "main" && "Click cards to add to main deck"}
           {activeZone === "extra" && "Click cards to add to extra deck"}
         </div>

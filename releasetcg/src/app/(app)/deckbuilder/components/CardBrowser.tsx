@@ -23,6 +23,10 @@ type Props = {
   ) => void;
 };
 
+/**
+ * Same browsing experience as the Gallery page: one scrolling area of
+ * full-size cards in an auto-filling grid.
+ */
 export default function CardBrowser({
   cards,
   cardCounts,
@@ -31,26 +35,18 @@ export default function CardBrowser({
   onClickCard,
 }: Props) {
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-lg border">
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        <div
-          className="
-            grid
-            gap-3
-            grid-cols-[repeat(auto-fill,minmax(140px,1fr))]
-          "
-        >
-          {cards.map((card) => (
-            <BrowserCard
-              key={card.id}
-              card={card}
-              counts={cardCounts[card.id]}
-              setHoveredCardId={setHoveredCardId}
-              setHoverAnchor={setHoverAnchor}
-              onClick={onClickCard}
-            />
-          ))}
-        </div>
+    <div className="h-full overflow-y-auto p-1 md:p-2">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-2">
+        {cards.map((card) => (
+          <BrowserCard
+            key={card.id}
+            card={card}
+            counts={cardCounts[card.id]}
+            setHoveredCardId={setHoveredCardId}
+            setHoverAnchor={setHoverAnchor}
+            onClick={onClickCard}
+          />
+        ))}
       </div>
     </div>
   );

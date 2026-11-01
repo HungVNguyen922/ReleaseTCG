@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import { useCards } from "./hooks/useCards";
 import { useDeckBuilder } from "./hooks/useDeckBuilder";
@@ -22,6 +24,11 @@ type Props = {
 
 export default function DeckBuilder({ deckId }: Props) {
   const { cards, loading } = useCards();
+
+  // On phones the browser and the deck list each get the whole screen.
+  const isMobile = useIsMobile();
+  const [mobileTab, setMobileTab] = useState<"cards" | "deck">("cards");
+  const [showFilters, setShowFilters] = useState(false);
 
   const {
     deck,
@@ -93,42 +100,95 @@ export default function DeckBuilder({ deckId }: Props) {
     );
   }
 
+  const browser = (
+    <CardBrowser
+      cards={browserCards}
+      cardCounts={cardCounts}
+      setHoveredCardId={setHoveredCardId}
+      setHoverAnchor={setHoverAnchor}
+      onClickCard={handleCardClick}
+    />
+  );
+
+  const panel = (
+    <DeckPanel
+      flow={isMobile}
+      deck={deck}
+      onDeckNameChange={handleDeckNameChange}
+      coverCardId={effectiveCoverCardId}
+      onSetCover={handleSetCoverCard}
+      mainDeckCards={mainDeckCards}
+      extraDeckCards={extraDeckCards}
+      counts={counts}
+      onIncrementCard={handleIncrementCard}
+      onDecrementCard={handleDecrementCard}
+      onSave={handleSave}
+      onExport={handleExport}
+      onImport={handleImport}
+      onClear={handleClear}
+    />
+  );
+
+  const tabClass = (active: boolean) =>
+    `rounded-md px-3 py-2 text-sm font-medium transition ${
+      active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+    }`;
+
   return (
     <>
-      <div className="flex h-app flex-col gap-3 overflow-y-auto p-4 md:overflow-hidden">
+      <div className="flex h-app flex-col gap-2 overflow-hidden p-2 md:gap-3 md:p-4">
         <DeckControls activeZone={activeZone} setActiveZone={setActiveZone} />
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="flex h-[75dvh] min-h-0 flex-col gap-3 md:h-auto">
-            <DeckToolbar filters={filters} setFilters={setFilters} />
+        {isMobile ? (
+          <>
+            <div className="grid shrink-0 grid-cols-2 gap-1 rounded-lg border p-1">
+              <button
+                className={tabClass(mobileTab === "cards")}
+                onClick={() => setMobileTab("cards")}
+              >
+                Cards
+              </button>
 
-            <div className="min-h-0 flex-1">
-              <CardBrowser
-                cards={browserCards}
-                cardCounts={cardCounts}
-                setHoveredCardId={setHoveredCardId}
-                setHoverAnchor={setHoverAnchor}
-                onClickCard={handleCardClick}
-              />
+              <button
+                className={tabClass(mobileTab === "deck")}
+                onClick={() => setMobileTab("deck")}
+              >
+                Deck ({counts.main + counts.extra}/20)
+              </button>
             </div>
-          </div>
 
-          <DeckPanel
-            deck={deck}
-            onDeckNameChange={handleDeckNameChange}
-            coverCardId={effectiveCoverCardId}
-            onSetCover={handleSetCoverCard}
-            mainDeckCards={mainDeckCards}
-            extraDeckCards={extraDeckCards}
-            counts={counts}
-            onIncrementCard={handleIncrementCard}
-            onDecrementCard={handleDecrementCard}
-            onSave={handleSave}
-            onExport={handleExport}
-            onImport={handleImport}
-            onClear={handleClear}
-          />
-        </div>
+            {mobileTab === "cards" ? (
+              <div className="flex min-h-0 flex-1 flex-col gap-2">
+                <button
+                  className="shrink-0 rounded border px-3 py-2 text-sm"
+                  onClick={() => setShowFilters((open) => !open)}
+                >
+                  {showFilters ? "Hide filters" : "Filters"}
+                </button>
+
+                {showFilters && (
+                  <div className="max-h-[45dvh] shrink-0 overflow-y-auto">
+                    <DeckToolbar filters={filters} setFilters={setFilters} />
+                  </div>
+                )}
+
+                <div className="min-h-0 flex-1">{browser}</div>
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1 overflow-y-auto">{panel}</div>
+            )}
+          </>
+        ) : (
+          <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_320px] grid-rows-[minmax(0,1fr)] gap-4">
+            <div className="flex min-h-0 flex-col gap-3">
+              <DeckToolbar filters={filters} setFilters={setFilters} />
+
+              <div className="min-h-0 flex-1">{browser}</div>
+            </div>
+
+            {panel}
+          </div>
+        )}
       </div>
 
       <CardPreviewPopup card={hoveredCard} anchor={hoverAnchor} />

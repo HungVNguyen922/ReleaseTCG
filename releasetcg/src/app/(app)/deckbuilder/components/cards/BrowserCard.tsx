@@ -36,17 +36,11 @@ export default function BrowserCard({
 }: Props) {
   return (
     <div
-      className="
-        group
-        cursor-pointer
-        overflow-hidden
-        rounded-md
-        border
-        transition
-        hover:border-muted-foreground/40
-        hover:shadow-md
-      "
+      className="group cursor-pointer overflow-hidden rounded-xl border bg-card shadow transition hover:-translate-y-1 hover:shadow-lg"
       onMouseEnter={(e) => {
+        // Touch screens fake a hover on tap; the popup would just get in the way.
+        if (window.matchMedia("(hover: none)").matches) return;
+
         setHoveredCardId(card.id);
 
         setHoverAnchor(
@@ -59,11 +53,12 @@ export default function BrowserCard({
       }}
       onClick={() => onClick(card)}
     >
-      <div className="relative aspect-[1/.5] bg-black/5">
+      <div className="relative aspect-[5/7] bg-black/5">
         <Image
           src={getCardImageUrl(card)}
           alt={card.name}
           fill
+          sizes="(max-width: 768px) 50vw, 200px"
           className="object-cover"
         />
 

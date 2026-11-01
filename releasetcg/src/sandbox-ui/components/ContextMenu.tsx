@@ -39,7 +39,7 @@ export default function ContextMenu() {
         game,
         state,
         viewer,
-        dropCards,
+        requestMove,
         browse,
         openPeek,
         startMove,
@@ -70,15 +70,6 @@ export default function ContextMenu() {
 
     if (ids.length === 0 && !zone) {
         return null;
-    }
-
-    function sendTo(target: ZoneKey, position?: "top" | "bottom"): () => void {
-
-        return () => {
-            dropCards(ids, target, position ? { position } : undefined);
-            closeMenu();
-        };
-
     }
 
     const cardItems: Item[] = [];
@@ -113,23 +104,15 @@ export default function ContextMenu() {
 
     const top = Math.max(8, Math.min(menu.y, window.innerHeight - 560));
 
-    // Where cards are already sitting, so that destination can be greyed out.
-    const currentZones = new Set(ids.map(id => findCard(state, id)?.zone));
-
-    const alreadyThere = (target: ZoneKey) =>
-        currentZones.size === 1 && currentZones.has(target);
-
     const chipClass = "rounded-md border px-2 py-1 text-xs hover:bg-muted disabled:opacity-35 disabled:hover:bg-transparent [@media(pointer:coarse)]:px-3 [@media(pointer:coarse)]:py-2";
 
     function Chip({
         label,
         target,
-        position,
         title,
     }: {
         label: string;
         target: ZoneKey;
-        position?: "top" | "bottom";
         title?: string;
     }) {
 
@@ -137,9 +120,8 @@ export default function ContextMenu() {
             <button
                 type="button"
                 title={title ?? describeZone(target)}
-                disabled={alreadyThere(target) && !position}
                 className={chipClass}
-                onClick={sendTo(target, position)}
+                onClick={() => requestMove(ids, target)}
             >
                 {label}
             </button>
@@ -225,7 +207,7 @@ export default function ContextMenu() {
                     <>
 
                         <div className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-                            Move {ids.length > 1 ? `${ids.length} cards` : "card"} to
+                            Move {ids.length > 1 ? `${ids.length} cards` : "card"} to (then pick top or bottom)
                         </div>
 
                         {seatOrder.map(seatBlock)}
@@ -235,9 +217,8 @@ export default function ContextMenu() {
                             <div className="pb-1 text-xs font-medium">Shared</div>
 
                             <div className="flex flex-wrap gap-1">
-                                <Chip label="Public top" target="public" position="top" title="Top of the public pile" />
-                                <Chip label="Public bottom" target="public" position="bottom" title="Bottom of the public pile" />
-                                <Chip label="Gap" target="gap" position="top" title="The gap" />
+                                <Chip label="Public pile" target="public" title="The public pile" />
+                                <Chip label="Gap" target="gap" title="The gap" />
                             </div>
 
                         </div>

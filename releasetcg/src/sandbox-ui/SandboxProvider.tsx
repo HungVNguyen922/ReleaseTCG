@@ -49,6 +49,12 @@ export interface MoveState {
     ids: string[];
 }
 
+/** Cards headed for a zone, waiting to hear whether they go on top or bottom. */
+export interface PendingMove {
+    ids: string[];
+    target: ZoneKey;
+}
+
 interface SandboxContextValue {
 
     game: SandboxGame;
@@ -108,6 +114,18 @@ interface SandboxContextValue {
 
     completeMove: (target: ZoneKey) => void;
 
+    /**
+     * Send cards to a zone, asking top or bottom first (unless the zone is
+     * empty, where it makes no difference).
+     */
+    requestMove: (cardIds: string[], target: ZoneKey) => void;
+
+    pendingMove: PendingMove | null;
+
+    confirmMove: (position: "top" | "bottom") => void;
+
+    cancelPendingMove: () => void;
+
     cancelMove: () => void;
 
     preview: PlayableCard | null;
@@ -160,6 +178,8 @@ export function SandboxProvider({ game, onExit, children }: Props) {
 
     const [moving, setMoving] = useState<MoveState | null>(null);
 
+    const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
+
     const [preview, setPreview] = useState<PlayableCard | null>(null);
 
     const passDevice = useCallback(() => {
@@ -173,6 +193,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         setBrowsing(null);
         setPeek(null);
         setMoving(null);
+        setPendingMove(null);
         setPreview(null);
 
     }, [viewer]);
@@ -270,17 +291,56 @@ export function SandboxProvider({ game, onExit, children }: Props) {
 
     }, [game]);
 
+    const requestMove = useCallback((cardIds: string[], target: ZoneKey) => {
+
+        setMenu(null);
+
+        if (cardIds.length === 0) {
+            return;
+        }
+
+        if (game.getState().zones[target].length === 0) {
+
+            // Nothing to be on top of: no need to ask.
+            game.move(cardIds, target);
+
+            setSelected([]);
+
+            return;
+
+        }
+
+        setPendingMove({ ids: cardIds, target });
+
+    }, [game]);
+
+    const confirmMove = useCallback((position: "top" | "bottom") => {
+
+        if (!pendingMove) {
+            return;
+        }
+
+        game.move(pendingMove.ids, pendingMove.target, { position });
+
+        setPendingMove(null);
+
+        setSelected([]);
+
+    }, [game, pendingMove]);
+
+    const cancelPendingMove = useCallback(() => setPendingMove(null), []);
+
     const completeMove = useCallback((target: ZoneKey) => {
 
         if (!moving || target === moving.from) {
             return;
         }
 
-        game.move(moving.ids, target);
+        requestMove(moving.ids, target);
 
         setMoving(null);
 
-    }, [game, moving]);
+    }, [moving, requestMove]);
 
     const cancelMove = useCallback(() => setMoving(null), []);
 
@@ -300,6 +360,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
                 setBrowsing(null);
                 setPeek(null);
                 setMoving(null);
+                setPendingMove(null);
                 return;
             }
 
@@ -353,6 +414,10 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         moving,
         startMove,
         completeMove,
+        requestMove,
+        pendingMove,
+        confirmMove,
+        cancelPendingMove,
         cancelMove,
         preview,
         setPreview,
@@ -379,6 +444,10 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         moving,
         startMove,
         completeMove,
+        requestMove,
+        pendingMove,
+        confirmMove,
+        cancelPendingMove,
         cancelMove,
         preview,
         onExit,

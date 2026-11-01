@@ -22,6 +22,7 @@ import ContextMenu from "./ContextMenu";
 import Hand from "./Hand";
 import HealthCounter from "./HealthCounter";
 import MoveBanner from "./MoveBanner";
+import PositionPrompt from "./PositionPrompt";
 import PassButton from "./PassButton";
 import PilePanel from "./PilePanel";
 import SeatCover from "./SeatCover";
@@ -166,6 +167,7 @@ export default function SandboxBoard() {
             <SelectionBar />
             <CardPreview />
             <MoveBanner />
+            <PositionPrompt />
             <ContextMenu />
             <ZoneBrowser />
             <SeatCover />

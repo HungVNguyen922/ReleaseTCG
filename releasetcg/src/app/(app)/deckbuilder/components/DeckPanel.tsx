@@ -29,6 +29,13 @@ type Props = {
   onExport: () => void;
   onImport: () => void;
   onClear: () => void;
+
+  /**
+   * Let the whole panel scroll with the page (used on phones, where there
+   * isn't room for a header, footer and a scrolling list all at once). The
+   * footer buttons stay pinned to the bottom.
+   */
+  flow?: boolean;
 };
 
 export default function DeckPanel({
@@ -45,6 +52,7 @@ export default function DeckPanel({
   onExport,
   onImport,
   onClear,
+  flow = false,
 }: Props) {
   function renderCardRow(card: DeckCard["card"], count: number, zone: Zone) {
     const isCover = coverCardId === card.id;
@@ -101,7 +109,13 @@ export default function DeckPanel({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-lg border overflow-hidden">
+    <div
+      className={
+        flow
+          ? "flex flex-col rounded-lg border"
+          : "flex h-full min-h-0 flex-col rounded-lg border overflow-hidden"
+      }
+    >
       {/* HEADER */}
       <div className="shrink-0 space-y-3 border-b p-4">
         <div>
@@ -120,7 +134,13 @@ export default function DeckPanel({
       </div>
 
       {/* SCROLLABLE BODY */}
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-8">
+      <div
+        className={
+          flow
+            ? "space-y-8 p-4"
+            : "flex-1 min-h-0 overflow-y-auto p-4 space-y-8"
+        }
+      >
         {/* MAIN DECK */}
         <section>
           <div className="mb-3 flex items-center justify-between">
@@ -163,7 +183,13 @@ export default function DeckPanel({
       </div>
 
       {/* FOOTER */}
-      <div className="shrink-0 border-t p-4">
+      <div
+        className={
+          flow
+            ? "sticky bottom-0 rounded-b-lg border-t bg-background p-3"
+            : "shrink-0 border-t p-4"
+        }
+      >
         <div className="grid grid-cols-4 gap-2">
           <button
             onClick={onSave}
