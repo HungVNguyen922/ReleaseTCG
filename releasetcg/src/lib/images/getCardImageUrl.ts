@@ -11,9 +11,9 @@ function buildCardImageFilename(card: ImageSourceCard): string {
   const num = card.cardNumber?.replace("/", "_");
   const set = card.setName;
 
-  if (!num || !set) return "1_81-IRFO.png";
+  if (!num || !set) return "1_81 - IRFO.png";
 
-  const raw = `${num}-${set}.png`;
+  const raw = `${num} - ${set}.png`;
   return encodeURIComponent(raw);
 }
 
