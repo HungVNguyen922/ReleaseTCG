@@ -419,6 +419,19 @@ export function adjustHealth(
 
 }
 
+/** Spend a player's Pass, or give it back (it is a toggle so mistakes are easy to fix). */
+export function togglePass(
+    state: SandboxState,
+    seat: SeatId,
+): SandboxState {
+
+    return {
+        ...state,
+        passUsed: { ...state.passUsed, [seat]: !state.passUsed[seat] },
+    };
+
+}
+
 export function setHealth(
     state: SandboxState,
     seat: SeatId,

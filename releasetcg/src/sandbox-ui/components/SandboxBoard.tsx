@@ -20,6 +20,8 @@ import ChainPanel from "./ChainPanel";
 import ContextMenu from "./ContextMenu";
 import Hand from "./Hand";
 import HealthCounter from "./HealthCounter";
+import MoveBanner from "./MoveBanner";
+import PassButton from "./PassButton";
 import PilePanel from "./PilePanel";
 import SeatCover from "./SeatCover";
 import StackZone from "./StackZone";
@@ -45,6 +47,19 @@ function Row({ seat, kind }: { seat: SeatId; kind: "gate" | "set" }) {
                     label={`${kind === "gate" ? "Gate" : "Set"} ${SLOT_LABELS[slot]}`}
                 />
             ))}
+        </div>
+    );
+
+}
+
+/** Pass tracker, health counter and extra deck for one player. */
+function SeatStats({ seat }: { seat: SeatId }) {
+
+    return (
+        <div className="flex items-stretch gap-2">
+            <PassButton seat={seat} />
+            <HealthCounter seat={seat} />
+            <PilePanel zone={extraZone(seat)} title={`${seat} extra deck`} />
         </div>
     );
 
@@ -76,16 +91,9 @@ export default function SandboxBoard() {
 
             <div className="flex min-h-0 flex-1 items-stretch justify-between gap-4 overflow-hidden px-3 py-2">
 
-                {/* Left: chain on top, extra decks beneath */}
-                <div className="flex w-[22vw] min-w-48 shrink-0 flex-col justify-between gap-2">
-
+                {/* Left: the chain */}
+                <div className="flex w-[22vw] min-w-48 shrink-0 flex-col justify-start">
                     <ChainPanel />
-
-                    <div className="flex justify-around">
-                        <PilePanel zone={extraZone(opponent)} title={`${opponent} extra deck`} />
-                        <PilePanel zone={extraZone(viewer)} title={`${viewer} extra deck`} />
-                    </div>
-
                 </div>
 
                 {/* Middle: the four rows, gates touching */}
@@ -96,17 +104,17 @@ export default function SandboxBoard() {
                     <Row seat={viewer} kind="set" />
                 </div>
 
-                {/* Right: health at the ends, piles in the middle */}
-                <div className="flex w-[22vw] min-w-48 shrink-0 flex-col items-center justify-between pt-10">
+                {/* Right: [Pass | Health | Extra deck] for each player, piles between */}
+                <div className="flex w-[22vw] min-w-72 shrink-0 flex-col items-center justify-between pt-16">
 
-                    <HealthCounter seat={opponent} />
+                    <SeatStats seat={opponent} />
 
                     <div className="flex items-start justify-center gap-4">
                         <PilePanel zone="public" title="Public pile" drawable />
                         <PilePanel zone="gap" title="Gap" showTop />
                     </div>
 
-                    <HealthCounter seat={viewer} />
+                    <SeatStats seat={viewer} />
 
                 </div>
 
@@ -132,6 +140,7 @@ export default function SandboxBoard() {
 
             <Toolbar />
             <CardPreview />
+            <MoveBanner />
             <ContextMenu />
             <ZoneBrowser />
             <SeatCover />

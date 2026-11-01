@@ -42,6 +42,13 @@ export interface PeekState {
     ids: string[];
 }
 
+/** Cards picked up from a zone, waiting for the player to click a destination. */
+export interface MoveState {
+    from: ZoneKey;
+    side: "top" | "bottom";
+    ids: string[];
+}
+
 interface SandboxContextValue {
 
     game: SandboxGame;
@@ -94,6 +101,15 @@ interface SandboxContextValue {
 
     closePeek: () => void;
 
+    /** Set while choosing where to send cards taken from a zone. */
+    moving: MoveState | null;
+
+    startMove: (zone: ZoneKey, side: "top" | "bottom", count: number) => void;
+
+    completeMove: (target: ZoneKey) => void;
+
+    cancelMove: () => void;
+
     preview: PlayableCard | null;
 
     setPreview: (card: PlayableCard | null) => void;
@@ -142,6 +158,8 @@ export function SandboxProvider({ game, onExit, children }: Props) {
 
     const [peek, setPeek] = useState<PeekState | null>(null);
 
+    const [moving, setMoving] = useState<MoveState | null>(null);
+
     const [preview, setPreview] = useState<PlayableCard | null>(null);
 
     const passDevice = useCallback(() => {
@@ -154,6 +172,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         setMenu(null);
         setBrowsing(null);
         setPeek(null);
+        setMoving(null);
         setPreview(null);
 
     }, [viewer]);
@@ -230,6 +249,41 @@ export function SandboxProvider({ game, onExit, children }: Props) {
 
     const closePeek = useCallback(() => setPeek(null), []);
 
+    const startMove = useCallback((
+        zone: ZoneKey,
+        side: "top" | "bottom",
+        count: number,
+    ) => {
+
+        const ids = peekIds(game.getState(), zone, side, count);
+
+        setMenu(null);
+        setSelected([]);
+        setBrowsing(null);
+        setPeek(null);
+
+        if (ids.length === 0) {
+            return;
+        }
+
+        setMoving({ from: zone, side, ids });
+
+    }, [game]);
+
+    const completeMove = useCallback((target: ZoneKey) => {
+
+        if (!moving || target === moving.from) {
+            return;
+        }
+
+        game.move(moving.ids, target);
+
+        setMoving(null);
+
+    }, [game, moving]);
+
+    const cancelMove = useCallback(() => setMoving(null), []);
+
     useEffect(() => {
 
         function onKeyDown(event: KeyboardEvent) {
@@ -245,6 +299,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
                 setSelected([]);
                 setBrowsing(null);
                 setPeek(null);
+                setMoving(null);
                 return;
             }
 
@@ -295,6 +350,10 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         peek,
         openPeek,
         closePeek,
+        moving,
+        startMove,
+        completeMove,
+        cancelMove,
         preview,
         setPreview,
         exit: onExit,
@@ -317,6 +376,10 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         peek,
         openPeek,
         closePeek,
+        moving,
+        startMove,
+        completeMove,
+        cancelMove,
         preview,
         onExit,
     ]);

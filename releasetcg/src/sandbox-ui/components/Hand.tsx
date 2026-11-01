@@ -65,6 +65,7 @@ export default function Hand({ seat }: Props) {
                     key={sc.id}
                     zone={handZone(seat)}
                     options={{ position: index }}
+                    target={false}
                     className="aspect-[5/7] h-[var(--hand-card-h)] shrink-0 transition-transform hover:-translate-y-2"
                 >
                     <CardView sc={sc} />

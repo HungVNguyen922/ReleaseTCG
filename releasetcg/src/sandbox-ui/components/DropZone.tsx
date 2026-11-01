@@ -21,6 +21,9 @@ interface Props {
 
     title?: string;
 
+    /** Set false for zones nested inside another zone (e.g. each hand card). */
+    target?: boolean;
+
     className?: string;
 
     children: ReactNode;
@@ -34,17 +37,35 @@ export default function DropZone({
     onCards,
     onContextMenu,
     title,
+    target = true,
     className = "",
     children,
 }: Props) {
 
-    const { dropCards } = useSandbox();
+    const { dropCards, moving, completeMove } = useSandbox();
+
+    // While choosing a destination for cards taken from a zone, every
+    // other zone lights up and can be clicked.
+    const choosing = Boolean(moving) && target && Boolean(zone) && !onCards;
+
+    const isSource = choosing && zone === moving?.from;
+
+    const isChoice = choosing && !isSource;
 
     const [over, setOver] = useState(false);
 
     return (
         <div
-            title={title}
+            title={isChoice ? "Click to move the cards here" : title}
+            onClickCapture={event => {
+
+                if (isChoice && zone) {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    completeMove(zone);
+                }
+
+            }}
             onContextMenu={onContextMenu}
             onDragOver={event => {
 
@@ -86,6 +107,8 @@ export default function DropZone({
             className={`
                 rounded-xl transition-colors
                 ${over ? "bg-primary/20 outline outline-2 outline-primary" : ""}
+                ${isChoice ? "cursor-pointer bg-primary/15 outline outline-2 outline-primary animate-pulse hover:bg-primary/30" : ""}
+                ${isSource ? "opacity-40" : ""}
                 ${className}
             `}
         >

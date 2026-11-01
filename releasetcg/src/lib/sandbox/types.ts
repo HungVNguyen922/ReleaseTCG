@@ -70,6 +70,9 @@ export interface SandboxState {
 
     health: Record<SeatId, number>;
 
+    /** Each player gets one Pass per game; true once it has been spent. */
+    passUsed: Record<SeatId, boolean>;
+
     /** Purely informational: whose turn the table says it is. */
     activeSeat: SeatId;
 

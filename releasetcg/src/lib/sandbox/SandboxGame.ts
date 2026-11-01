@@ -10,6 +10,7 @@ import {
     playParry,
     resolveChainCard,
     shuffleZone,
+    togglePass,
     withLog,
     type MoveOptions,
     type Rng,
@@ -278,6 +279,21 @@ export class SandboxGame {
             withLog(
                 next,
                 `${seat} ${delta < 0 ? "took" : "healed"} ${Math.abs(delta)} (now ${next.health[seat]})`,
+            ),
+        );
+
+    }
+
+    public togglePass(seat: SeatId): void {
+
+        const next = togglePass(this.state, seat);
+
+        this.commit(
+            withLog(
+                next,
+                next.passUsed[seat]
+                    ? `${seat} used their Pass`
+                    : `${seat}'s Pass was restored`,
             ),
         );
 

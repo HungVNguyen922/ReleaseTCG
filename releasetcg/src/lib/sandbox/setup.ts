@@ -175,6 +175,7 @@ export function createSandboxState(
         zones,
         chain: { plays: [], parries: [] },
         health: { P1: health, P2: health },
+        passUsed: { P1: false, P2: false },
         activeSeat: options.firstSeat ?? "P1",
         turn: 1,
         log: ["Sandbox started"],
