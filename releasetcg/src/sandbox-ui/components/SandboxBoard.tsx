@@ -14,6 +14,7 @@ import {
 } from "@/lib/sandbox";
 
 import { useSandbox } from "../SandboxProvider";
+import { useCompact } from "../useCompact";
 
 import CardPreview from "./CardPreview";
 import ChainPanel from "./ChainPanel";
@@ -24,13 +25,14 @@ import MoveBanner from "./MoveBanner";
 import PassButton from "./PassButton";
 import PilePanel from "./PilePanel";
 import SeatCover from "./SeatCover";
+import SelectionBar from "./SelectionBar";
 import StackZone from "./StackZone";
 import Toolbar from "./Toolbar";
 import ZoneBrowser from "./ZoneBrowser";
 
 const SIZES = {
-    "--chain-card-h": "8vh",
-    "--hand-card-h": "16vh",
+    "--chain-card-h": "8dvh",
+    "--hand-card-h": "16dvh",
 } as CSSProperties;
 
 /**
@@ -84,10 +86,12 @@ export default function SandboxBoard() {
 
     const opponent = otherSeat(viewer);
 
+    const compact = useCompact();
+
     return (
         <div
             style={SIZES}
-            className="relative flex h-full w-full flex-col overflow-hidden bg-background text-foreground"
+            className="relative flex h-full w-full select-none flex-col overflow-hidden bg-background text-foreground [-webkit-touch-callout:none]"
             onClick={event => {
 
                 // Clicking empty table clears the selection.
@@ -98,7 +102,7 @@ export default function SandboxBoard() {
             }}
         >
 
-            <div className="h-[8vh] shrink-0 border-b bg-muted/30">
+            <div className="h-[8dvh] shrink-0 border-b bg-muted/30">
                 <Hand seat={opponent} />
             </div>
 
@@ -110,7 +114,7 @@ export default function SandboxBoard() {
             >
 
                 {/* Left: the chain */}
-                <div className="flex w-[22vw] min-w-48 shrink-0 flex-col justify-start">
+                <div className={`flex shrink-0 flex-col justify-start ${compact ? "w-[22vw] min-w-36 pl-10" : "w-[22vw] min-w-48"}`}>
                     <ChainPanel />
                 </div>
 
@@ -123,7 +127,7 @@ export default function SandboxBoard() {
                 </div>
 
                 {/* Right: [Pass | Health | Extra deck] for each player, piles between */}
-                <div className="flex w-[22vw] min-w-72 shrink-0 flex-col items-center justify-between pt-16">
+                <div className={`flex shrink-0 flex-col items-center justify-between ${compact ? "w-[26vw] min-w-56" : "w-[22vw] min-w-72 pt-16"}`}>
 
                     <SeatStats seat={opponent} />
 
@@ -140,9 +144,9 @@ export default function SandboxBoard() {
 
             </div>
 
-            <div className="flex h-[19vh] shrink-0 items-stretch border-t bg-muted/30">
+            <div className="flex h-[19dvh] shrink-0 items-stretch border-t bg-muted/30">
 
-                <div className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 px-2">
+                <div className={`flex shrink-0 flex-col items-center justify-center gap-1 px-2 ${compact ? "w-20" : "w-28"}`}>
 
                     <span className="text-xs font-medium">{viewer} hand</span>
 
@@ -159,11 +163,27 @@ export default function SandboxBoard() {
             </div>
 
             <Toolbar />
+            <SelectionBar />
             <CardPreview />
             <MoveBanner />
             <ContextMenu />
             <ZoneBrowser />
             <SeatCover />
+
+            {/* Phones held upright: the board needs a wide screen. */}
+            <div className="fixed inset-0 z-[80] hidden flex-col items-center justify-center gap-3 bg-background p-8 text-center max-md:portrait:flex">
+
+                <span className="text-5xl" aria-hidden>&#x21BB;</span>
+
+                <h2 className="text-xl font-bold">Turn your phone sideways</h2>
+
+                <p className="text-sm text-muted-foreground">
+                    The sandbox board is laid out for a landscape screen. Rotate your
+                    phone (and unlock rotation in Control Centre) to keep playing. Your
+                    game is saved while you do.
+                </p>
+
+            </div>
 
         </div>
     );

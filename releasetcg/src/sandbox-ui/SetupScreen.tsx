@@ -130,7 +130,9 @@ export default function SetupScreen({ cards, onStart }: Props) {
     }
 
     return (
-        <div className="mx-auto flex h-full max-w-xl flex-col justify-center gap-6 p-6">
+        <div className="h-full overflow-y-auto">
+
+        <div className="mx-auto flex min-h-full max-w-xl flex-col justify-center gap-6 p-6 pl-14 sm:pl-6">
 
             <div>
                 <h1 className="text-3xl font-bold">Sandbox</h1>
@@ -202,6 +204,8 @@ export default function SetupScreen({ cards, onStart }: Props) {
             <Button size="lg" onClick={start} disabled={starting}>
                 {starting ? "Loading..." : "Start sandbox"}
             </Button>
+
+        </div>
 
         </div>
     );

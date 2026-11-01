@@ -127,6 +127,33 @@
   html {
     @apply font-sans;
   }
+
+  /* Touch screens (iPhone / iPad Safari) */
+  button,
+  [role="button"],
+  a,
+  summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* iOS zooms the page when a field under 16px is focused. */
+  @media (pointer: coarse) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+}
+
+/*
+ * Full-height page below the mobile top bar. MobileNav sets --topbar-h
+ * while the bar is showing; dvh follows Safari's collapsing address bar
+ * (plain vh/h-screen does not, and hides the bottom of the page).
+ */
+@utility h-app {
+  height: calc(100dvh - var(--topbar-h, 0px));
 }
 @keyframes float-up {
   from {

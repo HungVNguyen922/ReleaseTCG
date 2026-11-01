@@ -95,11 +95,11 @@ export default function DeckBuilder({ deckId }: Props) {
 
   return (
     <>
-      <div className="flex h-screen flex-col gap-3 overflow-hidden p-4">
+      <div className="flex h-app flex-col gap-3 overflow-y-auto p-4 md:overflow-hidden">
         <DeckControls activeZone={activeZone} setActiveZone={setActiveZone} />
 
-        <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_320px] gap-4">
-          <div className="flex min-h-0 flex-col gap-3">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="flex h-[75dvh] min-h-0 flex-col gap-3 md:h-auto">
             <DeckToolbar filters={filters} setFilters={setFilters} />
 
             <div className="min-h-0 flex-1">

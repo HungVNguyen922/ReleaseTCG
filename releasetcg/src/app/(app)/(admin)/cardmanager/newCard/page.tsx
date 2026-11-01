@@ -5,7 +5,7 @@ export default function NewCardPage() {
   const emptyCard = createEmptyCard();
 
   return (
-    <main className="h-screen">
+    <main className="h-app">
       <CardDetailsForm initial={emptyCard} />
     </main>
   );

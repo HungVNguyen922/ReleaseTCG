@@ -33,7 +33,7 @@ export function CardDetailsForm({ id, initial }: Props) {
       : "/placeholder.png";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_420px] h-screen">
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_420px] md:h-app">
       <div className="overflow-y-auto p-8 space-y-8">
         <BasicInfoSection form={form} update={update} />
         <PaletteSection form={form} update={update} />

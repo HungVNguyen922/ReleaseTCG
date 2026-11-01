@@ -5,7 +5,7 @@ export default async function GalleryPage() {
   const cards = await getPublicCards();
 
   return (
-    <main className="h-screen overflow-hidden">
+    <main className="h-app overflow-hidden">
       <Gallery initialCards={cards} />
     </main>
   );

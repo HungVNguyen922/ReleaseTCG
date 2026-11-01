@@ -1,11 +1,12 @@
 "use client";
 
-import type { MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 
 import type { MoveOptions, ZoneKey } from "@/lib/sandbox";
 
 import { DRAG_MIME, useSandbox } from "../SandboxProvider";
+import { useLongPress } from "../useLongPress";
 
 interface Props {
 
@@ -17,7 +18,8 @@ interface Props {
     /** Handle the drop yourself instead of moving cards to `zone`. */
     onCards?: (cardIds: string[]) => void;
 
-    onContextMenu?: (event: MouseEvent<HTMLDivElement>) => void;
+    /** Right-click (or long press on a touch screen) at screen position x, y. */
+    onMenu?: (x: number, y: number) => void;
 
     title?: string;
 
@@ -35,7 +37,7 @@ export default function DropZone({
     zone,
     options,
     onCards,
-    onContextMenu,
+    onMenu,
     title,
     target = true,
     className = "",
@@ -52,6 +54,8 @@ export default function DropZone({
 
     const isChoice = choosing && !isSource;
 
+    const press = useLongPress((x, y) => onMenu?.(x, y));
+
     const [over, setOver] = useState(false);
 
     return (
@@ -66,7 +70,13 @@ export default function DropZone({
                 }
 
             }}
-            onContextMenu={onContextMenu}
+            {...(onMenu ? press.handlers : {})}
+            onContextMenu={onMenu
+                ? event => {
+                    event.preventDefault();
+                    onMenu(event.clientX, event.clientY);
+                }
+                : undefined}
             onDragOver={event => {
 
                 if (event.dataTransfer.types.includes(DRAG_MIME)) {

@@ -38,7 +38,7 @@ export default function Hand({ seat }: Props) {
                 </span>
 
                 {cards.map(sc => (
-                    <div key={sc.id} className="aspect-[5/7] h-[5vh]">
+                    <div key={sc.id} className="aspect-[5/7] h-[5dvh]">
                         <PileBack count={1} className="[&_span]:hidden" />
                     </div>
                 ))}

@@ -12,6 +12,7 @@ import CardView from "./CardView";
 import DropZone from "./DropZone";
 
 import { useSandbox } from "../SandboxProvider";
+import { useCompact } from "../useCompact";
 
 interface Props {
 
@@ -36,6 +37,8 @@ export default function PilePanel({
 
     const { state, game, viewer, browse, openMenu } = useSandbox();
 
+    const compact = useCompact();
+
     const [amount, setAmount] = useState(1);
 
     const cards = state.zones[zone];
@@ -45,18 +48,15 @@ export default function PilePanel({
     return (
         <div className="flex flex-col items-center gap-1">
 
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className={`text-muted-foreground ${compact ? "text-[10px] leading-none" : "text-xs font-medium"}`}>
                 {title}
             </span>
 
             <DropZone
                 zone={zone}
-                className="p-1"
+                className={compact ? "p-0.5" : "p-1"}
                 title="Right-click to look at the top or bottom cards"
-                onContextMenu={event => {
-                    event.preventDefault();
-                    openMenu(event.clientX, event.clientY, [], zone);
-                }}
+                onMenu={(x, y) => openMenu(x, y, [], zone)}
             >
 
                 <div className="aspect-[5/7] h-[var(--pile-h)]">
@@ -86,7 +86,7 @@ export default function PilePanel({
                             onChange={event =>
                                 setAmount(Math.max(1, Number(event.target.value) || 1))
                             }
-                            className="h-6 w-12 rounded border bg-background px-1 text-center text-xs"
+                            className="h-6 w-10 rounded border bg-background px-1 text-center text-xs sm:w-12"
                             aria-label="Cards to draw"
                         />
 
@@ -125,7 +125,7 @@ export default function PilePanel({
                     </Button>
                 )}
 
-                {drawable && (
+                {drawable && !compact && (
                     <span className="text-xs text-muted-foreground">
                         {cards.length} cards
                     </span>

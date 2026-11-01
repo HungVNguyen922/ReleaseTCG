@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,11 @@ export const metadata: Metadata = {
   description: "Track and manage your card collection",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -41,7 +46,7 @@ export default function RootLayout({
         "font-sans"
       )}
     >
-      <body className="min-h-screen">
+      <body className="min-h-dvh">
         {children}
       </body>
     </html>

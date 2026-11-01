@@ -119,7 +119,7 @@ export default function ContextMenu() {
     const alreadyThere = (target: ZoneKey) =>
         currentZones.size === 1 && currentZones.has(target);
 
-    const chipClass = "rounded-md border px-2 py-1 text-xs hover:bg-muted disabled:opacity-35 disabled:hover:bg-transparent";
+    const chipClass = "rounded-md border px-2 py-1 text-xs hover:bg-muted disabled:opacity-35 disabled:hover:bg-transparent [@media(pointer:coarse)]:px-3 [@media(pointer:coarse)]:py-2";
 
     function Chip({
         label,
@@ -195,9 +195,9 @@ export default function ContextMenu() {
         </div>
     );
 
-    const itemClass = "block w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-muted";
+    const itemClass = "block w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-muted [@media(pointer:coarse)]:py-3";
 
-    const lookClass = "rounded-lg border px-3 py-1 text-sm hover:bg-muted disabled:opacity-40";
+    const lookClass = "rounded-lg border px-3 py-1 text-sm hover:bg-muted disabled:opacity-40 [@media(pointer:coarse)]:py-2";
 
     return (
         <div
@@ -211,7 +211,7 @@ export default function ContextMenu() {
 
             <div
                 style={{ left, top, maxHeight: window.innerHeight - top - 8 }}
-                className="absolute w-72 overflow-y-auto rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl"
+                className="absolute w-72 overscroll-contain overflow-y-auto rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl"
                 onClick={event => event.stopPropagation()}
             >
 

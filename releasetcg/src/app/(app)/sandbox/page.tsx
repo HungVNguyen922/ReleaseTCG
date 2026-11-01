@@ -15,7 +15,7 @@ export default async function SandboxPage() {
   const cards = (await getEngineCards()).map(toPlayableCard);
 
   return (
-    <main className="h-screen overflow-hidden">
+    <main className="h-app overflow-hidden">
       <SandboxController cards={cards} />
     </main>
   );

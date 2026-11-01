@@ -9,6 +9,7 @@ import { getCardImageUrl } from "@/lib/images/getCardImageUrl";
 import type { SandboxCard } from "@/lib/sandbox";
 
 import { DRAG_MIME, useSandbox } from "../SandboxProvider";
+import { useLongPress } from "../useLongPress";
 
 interface Props {
 
@@ -47,12 +48,23 @@ export default function CardView({
 
     const showBack = hidden || !sc.faceUp;
 
+    const press = useLongPress((x, y) => {
+
+        if (!hidden) {
+            openMenu(x, y, selected.includes(sc.id) ? selected : [sc.id]);
+        }
+
+    });
+
     const isSelected = selected.includes(sc.id);
 
     return (
         <div
             draggable={draggable && !hidden}
+            {...press.handlers}
             onDragStart={event => {
+
+                press.cancel();
 
                 const ids = selected.includes(sc.id) ? selected : [sc.id];
 
@@ -99,7 +111,7 @@ export default function CardView({
             }}
             onMouseLeave={() => setPreview(null)}
             className={`
-                relative h-full w-full select-none rounded-xl
+                relative h-full w-full select-none rounded-xl [-webkit-touch-callout:none]
                 ${draggable && !hidden ? "cursor-grab active:cursor-grabbing" : ""}
                 ${isSelected ? "ring-4 ring-primary ring-offset-2 ring-offset-background" : ""}
                 ${className}

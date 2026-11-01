@@ -26,10 +26,7 @@ export default function StackZone({ zone, label }: Props) {
             zone={zone}
             className="relative p-1"
             title="Right-click to look at cards in this stack"
-            onContextMenu={event => {
-                event.preventDefault();
-                openMenu(event.clientX, event.clientY, [], zone);
-            }}
+            onMenu={(x, y) => openMenu(x, y, [], zone)}
         >
 
             <div className="aspect-[5/7] h-[var(--card-h)]">

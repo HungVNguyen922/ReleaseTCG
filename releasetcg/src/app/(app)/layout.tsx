@@ -5,6 +5,7 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { AppSidebar } from "@/components/app-sidebar";
+import { MobileNav } from "@/components/mobile-nav";
 import { getUserProfile } from "@/utils/supabase/getUserProfile";
 
 export default async function AppLayout({
@@ -20,6 +21,7 @@ export default async function AppLayout({
         <AppSidebar user={user} profile={profile} />
 
         <SidebarInset>
+          <MobileNav />
           {children}
         </SidebarInset>
       </SidebarProvider>

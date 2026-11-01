@@ -18,7 +18,7 @@ export default function MoveBanner() {
     const count = moving.ids.length;
 
     return (
-        <div className="absolute left-1/2 top-[9vh] z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl border bg-card px-4 py-2 text-sm shadow-xl">
+        <div className="absolute left-1/2 top-[9dvh] z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl border bg-card px-4 py-2 text-sm shadow-xl">
 
             <span>
                 Moving the {moving.side} <b>{count}</b> {count === 1 ? "card" : "cards"} of{" "}

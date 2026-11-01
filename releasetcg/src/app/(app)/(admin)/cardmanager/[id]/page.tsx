@@ -17,7 +17,7 @@ export default async function EditCardPage({
   }
 
   return (
-    <main className="h-screen">
+    <main className="h-app">
         <CardDetailsForm
             id={card.id}
             initial={normalizeCard(card)}

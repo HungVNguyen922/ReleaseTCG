@@ -71,7 +71,7 @@ export default function CardPreviewPopup({
     >
       <div
         className="
-          w-[360px]
+          w-[360px] max-w-[90vw]
           max-h-[420px]
           overflow-hidden
           rounded-xl

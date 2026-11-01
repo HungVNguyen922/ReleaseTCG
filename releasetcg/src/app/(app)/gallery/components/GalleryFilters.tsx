@@ -33,7 +33,7 @@ export function GalleryFilters({
 }: Props) {
   return (
     <div className="sticky top-0 z-20 border-b bg-background p-4">
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <TextInput label="Search" value={filters.search} onChange={onSearch} />
 
         <TextInput label="Set" value={filters.setName} onChange={onSetName} />

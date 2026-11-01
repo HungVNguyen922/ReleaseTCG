@@ -5,7 +5,7 @@ export default async function Page() {
   const supabase = await createClient()
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
     <h1 className="text-4xl font-bold text-center">ReleaseTCG</h1>
     <section className="flex flex-1 items-center justify-center">
         <p>Match Preview Image</p>
