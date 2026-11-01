@@ -122,4 +122,3 @@ describe("moving the top N cards of a zone", () => {
     });
 
 });
-

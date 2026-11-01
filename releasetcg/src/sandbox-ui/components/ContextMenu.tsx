@@ -5,10 +5,15 @@ import { useState } from "react";
 import {
     currentPlayGate,
     describeZone,
+    SLOTS,
     extraZone,
     findCard,
+    gateZone,
     handZone,
+    otherSeat,
     parseZone,
+    setZone,
+    type SeatId,
     type ZoneKey,
 } from "@/lib/sandbox";
 
@@ -67,8 +72,6 @@ export default function ContextMenu() {
         return null;
     }
 
-    const owner = ids[0] ? (findCard(state, ids[0])?.card.owner ?? viewer) : viewer;
-
     function sendTo(target: ZoneKey, position?: "top" | "bottom"): () => void {
 
         return () => {
@@ -102,21 +105,95 @@ export default function ContextMenu() {
 
         }
 
-        cardItems.push(
-            { label: `To ${viewer} hand`, run: sendTo(handZone(viewer)) },
-            { label: "To top of public pile", run: sendTo("public", "top") },
-            { label: "To bottom of public pile", run: sendTo("public", "bottom") },
-            { label: "To the gap", run: sendTo("gap", "top") },
-            { label: `To ${owner} extra deck`, run: sendTo(extraZone(owner)) },
-        );
-
     }
 
     const zoneCount = zone ? state.zones[zone].length : 0;
 
-    const left = Math.min(menu.x, window.innerWidth - 260);
+    const left = Math.max(8, Math.min(menu.x, window.innerWidth - 310));
 
-    const top = Math.max(8, Math.min(menu.y, window.innerHeight - 420));
+    const top = Math.max(8, Math.min(menu.y, window.innerHeight - 560));
+
+    // Where cards are already sitting, so that destination can be greyed out.
+    const currentZones = new Set(ids.map(id => findCard(state, id)?.zone));
+
+    const alreadyThere = (target: ZoneKey) =>
+        currentZones.size === 1 && currentZones.has(target);
+
+    const chipClass = "rounded-md border px-2 py-1 text-xs hover:bg-muted disabled:opacity-35 disabled:hover:bg-transparent";
+
+    function Chip({
+        label,
+        target,
+        position,
+        title,
+    }: {
+        label: string;
+        target: ZoneKey;
+        position?: "top" | "bottom";
+        title?: string;
+    }) {
+
+        return (
+            <button
+                type="button"
+                title={title ?? describeZone(target)}
+                disabled={alreadyThere(target) && !position}
+                className={chipClass}
+                onClick={sendTo(target, position)}
+            >
+                {label}
+            </button>
+        );
+
+    }
+
+    const seatOrder: SeatId[] = [viewer, otherSeat(viewer)];
+
+    const seatBlock = (seat: SeatId) => (
+        <div key={seat} className="px-3 pb-2">
+
+            <div className="pb-1 text-xs font-medium">
+                {seat}{seat === viewer ? " (you)" : " (opponent)"}
+            </div>
+
+            <div className="flex flex-wrap gap-1">
+
+                <Chip label="Hand" target={handZone(seat)} />
+
+                <Chip label="Extra deck" target={extraZone(seat)} />
+
+            </div>
+
+            <div className="mt-1 flex items-center gap-1">
+
+                <span className="w-8 text-[11px] text-muted-foreground">Gate</span>
+
+                {SLOTS.map(slot => (
+                    <Chip
+                        key={slot}
+                        label={["Left", "Center", "Right"][slot]}
+                        target={gateZone(seat, slot)}
+                    />
+                ))}
+
+            </div>
+
+            <div className="mt-1 flex items-center gap-1">
+
+                <span className="w-8 text-[11px] text-muted-foreground">Set</span>
+
+                {SLOTS.map(slot => (
+                    <Chip
+                        key={slot}
+                        label={["Left", "Center", "Right"][slot]}
+                        target={setZone(seat, slot)}
+                    />
+                ))}
+
+            </div>
+
+        </div>
+    );
 
     const itemClass = "block w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-muted";
 
@@ -133,8 +210,8 @@ export default function ContextMenu() {
         >
 
             <div
-                style={{ left, top }}
-                className="absolute max-h-[90vh] w-60 overflow-y-auto rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl"
+                style={{ left, top, maxHeight: window.innerHeight - top - 8 }}
+                className="absolute w-72 overflow-y-auto rounded-xl border bg-popover p-1 text-popover-foreground shadow-xl"
                 onClick={event => event.stopPropagation()}
             >
 
@@ -144,8 +221,34 @@ export default function ContextMenu() {
                     </button>
                 ))}
 
+                {ids.length > 0 && (
+                    <>
+
+                        <div className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                            Move {ids.length > 1 ? `${ids.length} cards` : "card"} to
+                        </div>
+
+                        {seatOrder.map(seatBlock)}
+
+                        <div className="px-3 pb-2">
+
+                            <div className="pb-1 text-xs font-medium">Shared</div>
+
+                            <div className="flex flex-wrap gap-1">
+                                <Chip label="Public top" target="public" position="top" title="Top of the public pile" />
+                                <Chip label="Public bottom" target="public" position="bottom" title="Bottom of the public pile" />
+                                <Chip label="Gap" target="gap" position="top" title="The gap" />
+                            </div>
+
+                        </div>
+
+                    </>
+                )}
+
                 {zone && (
                     <>
+
+                        {ids.length > 0 && <div className="my-1 border-t" />}
 
                         {cardItems.length > 0 && <div className="my-1 border-t" />}
 

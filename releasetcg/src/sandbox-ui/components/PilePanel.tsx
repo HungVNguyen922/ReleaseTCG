@@ -59,7 +59,7 @@ export default function PilePanel({
                 }}
             >
 
-                <div className="aspect-[5/7] h-[var(--card-h)]">
+                <div className="aspect-[5/7] h-[var(--pile-h)]">
 
                     {showTop && top ? (
                         <CardView sc={top} />
