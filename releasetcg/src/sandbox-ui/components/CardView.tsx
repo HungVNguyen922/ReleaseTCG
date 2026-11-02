@@ -9,6 +9,7 @@ import { getCardImageUrl } from "@/lib/images/getCardImageUrl";
 import { findCard, parseZone, type SandboxCard } from "@/lib/sandbox";
 
 import { DRAG_MIME, useSandbox } from "../SandboxProvider";
+import PingGlow from "./PingGlow";
 import { useLongPress } from "../useLongPress";
 
 interface Props {
@@ -25,9 +26,9 @@ interface Props {
     onClick?: (event: MouseEvent) => void;
 
     /**
-     * Left click selects the card (true) or pings it (false). By default
-     * only cards in a hand or a set zone can be selected; everywhere else a
-     * click is a ping.
+     * Force click-to-select with no ping (used by the zone browser). By
+     * default a click selects cards in a hand or set zone and pings every
+     * card that is not in a hand, so set cards do both.
      */
     selectable?: boolean;
 
@@ -53,7 +54,6 @@ export default function CardView({
         openMenu,
         setPreview,
         state,
-        pings,
         ping,
     } = useSandbox();
 
@@ -63,7 +63,8 @@ export default function CardView({
 
     const canSelect = selectable ?? (zoneKind === "hand" || zoneKind === "set");
 
-    const pingNonce = pings[sc.id];
+    // Your own hand is private and obvious, so it only selects.
+    const canPing = selectable === undefined && zoneKind !== "hand";
 
     const showBack = hidden || !sc.faceUp;
 
@@ -104,7 +105,9 @@ export default function CardView({
 
                 if (canSelect) {
                     toggleSelect(sc.id);
-                } else {
+                }
+
+                if (canPing) {
                     ping(sc.id);
                 }
 
@@ -153,13 +156,7 @@ export default function CardView({
                 />
             )}
 
-            {pingNonce !== undefined && (
-                // One fade in / fade out. The key restarts it on a re-ping.
-                <span
-                    key={pingNonce}
-                    className="pointer-events-none absolute -inset-1 z-20 rounded-2xl opacity-0 ring-[5px] ring-amber-400 shadow-[0_0_18px_6px_rgba(251,191,36,0.8)] animate-[sandbox-ping_1s_ease-out_forwards]"
-                />
-            )}
+            <PingGlow target={sc.id} />
 
             {!hidden && !sc.faceUp && (
                 <span className="absolute left-1 top-1 rounded bg-black/70 px-1 text-[10px] font-semibold text-white">

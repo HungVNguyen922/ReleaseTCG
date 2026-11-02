@@ -10,6 +10,7 @@ import type { ZoneKey } from "@/lib/sandbox";
 
 import CardView from "./CardView";
 import DropZone from "./DropZone";
+import PingGlow from "./PingGlow";
 
 import { useSandbox } from "../SandboxProvider";
 import { useCompact } from "../useCompact";
@@ -35,7 +36,7 @@ export default function PilePanel({
     drawable = false,
 }: Props) {
 
-    const { state, game, viewer, browse, openMenu } = useSandbox();
+    const { state, game, viewer, browse, openMenu, ping } = useSandbox();
 
     const compact = useCompact();
 
@@ -59,7 +60,20 @@ export default function PilePanel({
                 onMenu={(x, y) => openMenu(x, y, [], zone)}
             >
 
-                <div className="aspect-[5/7] h-[var(--pile-h)]">
+                <div
+                    className={`relative aspect-[5/7] h-[var(--pile-h)] ${cards.length > 0 && !(showTop && top) ? "cursor-pointer" : ""}`}
+                    onClick={() => {
+
+                        // Piles that show a card ping that card (CardView); the
+                        // rest ping the pile itself.
+                        if (cards.length > 0 && !(showTop && top)) {
+                            ping(`zone:${zone}`);
+                        }
+
+                    }}
+                >
+
+                    <PingGlow target={`zone:${zone}`} />
 
                     {showTop && top ? (
                         <CardView sc={top} />
