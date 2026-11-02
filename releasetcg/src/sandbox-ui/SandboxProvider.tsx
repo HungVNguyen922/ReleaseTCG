@@ -28,7 +28,7 @@ import {
 export const DRAG_MIME = "application/x-sandbox-cards";
 
 /** How long a ping stays lit. */
-const PING_MS = 1800;
+const PING_MS = 1000;
 
 export interface CardMenuState {
     x: number;

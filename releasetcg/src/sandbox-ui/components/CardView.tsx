@@ -154,17 +154,11 @@ export default function CardView({
             )}
 
             {pingNonce !== undefined && (
-                <>
-                    {/* Restarted by the key each time the card is pinged. */}
-                    <span
-                        key={`glow-${pingNonce}`}
-                        className="pointer-events-none absolute -inset-1 z-20 rounded-2xl ring-[5px] ring-amber-400 shadow-[0_0_22px_8px_rgba(251,191,36,0.85)] animate-pulse"
-                    />
-                    <span
-                        key={`wave-${pingNonce}`}
-                        className="pointer-events-none absolute inset-0 z-20 rounded-xl ring-4 ring-amber-300 animate-ping"
-                    />
-                </>
+                // One fade in / fade out. The key restarts it on a re-ping.
+                <span
+                    key={pingNonce}
+                    className="pointer-events-none absolute -inset-1 z-20 rounded-2xl opacity-0 ring-[5px] ring-amber-400 shadow-[0_0_18px_6px_rgba(251,191,36,0.8)] animate-[sandbox-ping_1s_ease-out_forwards]"
+                />
             )}
 
             {!hidden && !sc.faceUp && (

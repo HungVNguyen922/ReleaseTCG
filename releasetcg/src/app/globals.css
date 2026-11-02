@@ -155,6 +155,21 @@
 @utility h-app {
   height: calc(100dvh - var(--topbar-h, 0px));
 }
+/* Sandbox ping: quick fade in, short hold, fade out (1s total). */
+@keyframes sandbox-ping {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 @keyframes float-up {
   from {
     opacity: 1;
