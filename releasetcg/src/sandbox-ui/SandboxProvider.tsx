@@ -6,6 +6,7 @@ import {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
     useSyncExternalStore,
     type ReactNode,
@@ -25,6 +26,9 @@ import {
 } from "@/lib/sandbox";
 
 export const DRAG_MIME = "application/x-sandbox-cards";
+
+/** How long a ping stays lit. */
+const PING_MS = 1800;
 
 export interface CardMenuState {
     x: number;
@@ -128,6 +132,15 @@ interface SandboxContextValue {
 
     cancelMove: () => void;
 
+    /**
+     * Cards currently pinged, mapped to a counter that changes on every
+     * ping (so pinging the same card again restarts its animation).
+     */
+    pings: Record<string, number>;
+
+    /** Briefly highlight a card so both players can point at it. */
+    ping: (cardId: string) => void;
+
     preview: PlayableCard | null;
 
     setPreview: (card: PlayableCard | null) => void;
@@ -179,6 +192,12 @@ export function SandboxProvider({ game, onExit, children }: Props) {
     const [moving, setMoving] = useState<MoveState | null>(null);
 
     const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
+
+    const [pings, setPings] = useState<Record<string, number>>({});
+
+    const pingTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+
+    const pingCounter = useRef(0);
 
     const [preview, setPreview] = useState<PlayableCard | null>(null);
 
@@ -290,6 +309,46 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         setMoving({ from: zone, side, ids });
 
     }, [game]);
+
+    const ping = useCallback((cardId: string) => {
+
+        const timers = pingTimers.current;
+
+        const running = timers.get(cardId);
+
+        if (running) {
+            clearTimeout(running);
+        }
+
+        pingCounter.current += 1;
+
+        const nonce = pingCounter.current;
+
+        setPings(current => ({ ...current, [cardId]: nonce }));
+
+        timers.set(cardId, setTimeout(() => {
+
+            timers.delete(cardId);
+
+            setPings(current => {
+                const { [cardId]: _gone, ...rest } = current;
+                return rest;
+            });
+
+        }, PING_MS));
+
+    }, []);
+
+    useEffect(() => {
+
+        const timers = pingTimers.current;
+
+        return () => {
+            timers.forEach(timer => clearTimeout(timer));
+            timers.clear();
+        };
+
+    }, []);
 
     const requestMove = useCallback((cardIds: string[], target: ZoneKey) => {
 
@@ -419,6 +478,8 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         confirmMove,
         cancelPendingMove,
         cancelMove,
+        pings,
+        ping,
         preview,
         setPreview,
         exit: onExit,
@@ -449,6 +510,8 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         confirmMove,
         cancelPendingMove,
         cancelMove,
+        pings,
+        ping,
         preview,
         onExit,
     ]);

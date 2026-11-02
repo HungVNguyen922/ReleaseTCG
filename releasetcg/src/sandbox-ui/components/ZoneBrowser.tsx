@@ -149,7 +149,7 @@ export default function ZoneBrowser() {
                         <div key={sc.id} className="relative">
 
                             <div className="aspect-[5/7] w-full">
-                                <CardView sc={{ ...sc, faceUp: true }} />
+                                <CardView sc={{ ...sc, faceUp: true }} selectable />
                             </div>
 
                             <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1 text-[10px] text-white">

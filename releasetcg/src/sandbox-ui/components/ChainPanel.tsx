@@ -19,6 +19,8 @@ function Row({
     onResolve: (id: string) => void;
 }) {
 
+    const { ping } = useSandbox();
+
     if (cards.length === 0) {
         return <span className="px-1 text-xs text-muted-foreground">{empty}</span>;
     }
@@ -28,7 +30,7 @@ function Row({
             {cards.map(sc => (
                 <div key={sc.id} className="group relative aspect-[5/7] h-[var(--chain-card-h)]">
 
-                    <CardView sc={{ ...sc, faceUp: true }} draggable={false} onClick={() => {}} />
+                    <CardView sc={{ ...sc, faceUp: true }} draggable={false} onClick={() => ping(sc.id)} />
 
                     <button
                         type="button"

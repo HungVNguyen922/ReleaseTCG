@@ -6,7 +6,7 @@ import CardBack from "@/game-ui/components/cards/CardBack";
 
 import { getCardImageUrl } from "@/lib/images/getCardImageUrl";
 
-import type { SandboxCard } from "@/lib/sandbox";
+import { findCard, parseZone, type SandboxCard } from "@/lib/sandbox";
 
 import { DRAG_MIME, useSandbox } from "../SandboxProvider";
 import { useLongPress } from "../useLongPress";
@@ -24,6 +24,13 @@ interface Props {
 
     onClick?: (event: MouseEvent) => void;
 
+    /**
+     * Left click selects the card (true) or pings it (false). By default
+     * only cards in a hand or a set zone can be selected; everywhere else a
+     * click is a ping.
+     */
+    selectable?: boolean;
+
 }
 
 /**
@@ -37,6 +44,7 @@ export default function CardView({
     draggable = true,
     className = "",
     onClick,
+    selectable,
 }: Props) {
 
     const {
@@ -44,7 +52,18 @@ export default function CardView({
         toggleSelect,
         openMenu,
         setPreview,
+        state,
+        pings,
+        ping,
     } = useSandbox();
+
+    const location = findCard(state, sc.id);
+
+    const zoneKind = location ? parseZone(location.zone).kind : null;
+
+    const canSelect = selectable ?? (zoneKind === "hand" || zoneKind === "set");
+
+    const pingNonce = pings[sc.id];
 
     const showBack = hidden || !sc.faceUp;
 
@@ -83,7 +102,11 @@ export default function CardView({
                     return;
                 }
 
-                toggleSelect(sc.id);
+                if (canSelect) {
+                    toggleSelect(sc.id);
+                } else {
+                    ping(sc.id);
+                }
 
             }}
             onContextMenu={event => {
@@ -128,6 +151,20 @@ export default function CardView({
                     draggable={false}
                     className="h-full w-full rounded-xl border object-cover shadow-lg"
                 />
+            )}
+
+            {pingNonce !== undefined && (
+                <>
+                    {/* Restarted by the key each time the card is pinged. */}
+                    <span
+                        key={`glow-${pingNonce}`}
+                        className="pointer-events-none absolute -inset-1 z-20 rounded-2xl ring-[5px] ring-amber-400 shadow-[0_0_22px_8px_rgba(251,191,36,0.85)] animate-pulse"
+                    />
+                    <span
+                        key={`wave-${pingNonce}`}
+                        className="pointer-events-none absolute inset-0 z-20 rounded-xl ring-4 ring-amber-300 animate-ping"
+                    />
+                </>
             )}
 
             {!hidden && !sc.faceUp && (
