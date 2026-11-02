@@ -6,6 +6,7 @@ import { handZone, type SeatId } from "@/lib/sandbox";
 
 import CardView from "./CardView";
 import DropZone from "./DropZone";
+import PingGlow from "./PingGlow";
 
 import { useSandbox } from "../SandboxProvider";
 
@@ -19,7 +20,7 @@ interface Props {
  */
 export default function Hand({ seat }: Props) {
 
-    const { state, viewer, coverFor } = useSandbox();
+    const { state, viewer, coverFor, ping } = useSandbox();
 
     const cards = state.zones[handZone(seat)];
 
@@ -38,7 +39,13 @@ export default function Hand({ seat }: Props) {
                 </span>
 
                 {cards.map(sc => (
-                    <div key={sc.id} className="aspect-[5/7] h-[5dvh]">
+                    <div
+                        key={sc.id}
+                        title="Click to ping this card"
+                        className="relative aspect-[5/7] h-[5dvh] cursor-pointer"
+                        onClick={() => ping(sc.id)}
+                    >
+                        <PingGlow target={sc.id} />
                         <PileBack count={1} className="[&_span]:hidden" />
                     </div>
                 ))}

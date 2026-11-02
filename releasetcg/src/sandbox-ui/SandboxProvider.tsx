@@ -16,7 +16,9 @@ import type { PlayableCard } from "@/types/cards";
 
 import {
     describeZone,
+    findCard,
     otherSeat,
+    parseZone,
     peekIds,
     type MoveOptions,
     type SandboxGame,
@@ -57,6 +59,15 @@ export interface MoveState {
 export interface PendingMove {
     ids: string[];
     target: ZoneKey;
+
+    /** Ask top or bottom (pointless when the zone is empty). */
+    askPosition: boolean;
+
+    /** Ask face up or face down (only where the face is visible: gates, sets, the gap). */
+    askFace: boolean;
+
+    /** What the face question starts on. */
+    faceUp: boolean;
 }
 
 interface SandboxContextValue {
@@ -126,7 +137,10 @@ interface SandboxContextValue {
 
     pendingMove: PendingMove | null;
 
-    confirmMove: (position: "top" | "bottom") => void;
+    confirmMove: (choice: {
+        position?: "top" | "bottom";
+        faceUp?: boolean;
+    }) => void;
 
     cancelPendingMove: () => void;
 
@@ -358,9 +372,17 @@ export function SandboxProvider({ game, onExit, children }: Props) {
             return;
         }
 
-        if (game.getState().zones[target].length === 0) {
+        const current = game.getState();
 
-            // Nothing to be on top of: no need to ask.
+        const kind = parseZone(target).kind;
+
+        const askFace = kind === "gate" || kind === "set" || kind === "gap";
+
+        const askPosition = current.zones[target].length > 0;
+
+        if (!askFace && !askPosition) {
+
+            // Nothing to be on top of and no face to choose: just move.
             game.move(cardIds, target);
 
             setSelected([]);
@@ -369,17 +391,31 @@ export function SandboxProvider({ game, onExit, children }: Props) {
 
         }
 
-        setPendingMove({ ids: cardIds, target });
+        // Start on the cards' current face when they all agree.
+        const faces = new Set(
+            cardIds.map(id => findCard(current, id)?.card.faceUp ?? true),
+        );
+
+        setPendingMove({
+            ids: cardIds,
+            target,
+            askPosition,
+            askFace,
+            faceUp: faces.size === 1 ? [...faces][0] : true,
+        });
 
     }, [game]);
 
-    const confirmMove = useCallback((position: "top" | "bottom") => {
+    const confirmMove = useCallback((choice: {
+        position?: "top" | "bottom";
+        faceUp?: boolean;
+    }) => {
 
         if (!pendingMove) {
             return;
         }
 
-        game.move(pendingMove.ids, pendingMove.target, { position });
+        game.move(pendingMove.ids, pendingMove.target, choice);
 
         setPendingMove(null);
 
