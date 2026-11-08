@@ -32,7 +32,7 @@ export default function ColorsPage() {
       </Section>
 
       <Section title="The nine colors">
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           {COLORS.map((color) => (
             <div
               key={color.name}
