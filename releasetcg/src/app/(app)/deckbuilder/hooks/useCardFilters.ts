@@ -13,7 +13,8 @@ export function useCardFilters(cards: PlayableCard[]) {
     search: "",
     power: "all",
     bulk: "all",
-    color: "all",
+    colors: [],
+    colorMode: "contains",
     pool: "all",
   });
 

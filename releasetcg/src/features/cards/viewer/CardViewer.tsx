@@ -31,6 +31,9 @@ export function CardViewer({ card, children }: Props) {
             trait={card.trait}
             effect1={card.effect1}
             effect2={card.effect2}
+            clarify1={card.clarify1}
+            clarify2={card.clarify2}
+            clarify3={card.clarify3}
           />
 
           <CardFlavorText flavor_text={card.flavor} />

@@ -2,6 +2,8 @@
 
 import type { CardFilterValues } from "@/types/cards";
 
+import { ColorFilter } from "./ColorFilter";
+
 type Props = {
   filters: CardFilterValues;
   setFilters: React.Dispatch<
@@ -39,19 +41,6 @@ const powers = [
 
 const bulks = powers;
 
-const colors = [
-  "all",
-  "Red",
-  "Orange",
-  "Yellow",
-  "Green",
-  "Cyan",
-  "Blue",
-  "Violet",
-  "Magenta",
-  "Pink",
-];
-
 export function CardFilters({
   filters,
   setFilters,
@@ -74,11 +63,10 @@ export function CardFilters({
     }));
   }
 
-  const visibleFilters = [
+  const visibleSelects = [
     showPool,
     showPower,
     showBulk,
-    showColor,
   ].filter(Boolean).length;
 
   return (
@@ -93,123 +81,109 @@ export function CardFilters({
         }
       />
 
-      {/* Secondary Filters */}
-      {visibleFilters > 0 && (
-        <div
-          className={`
-            grid gap-4
-            ${
-              visibleFilters === 1
-                ? "grid-cols-1"
-                : visibleFilters === 2
-                ? "grid-cols-2"
-                : visibleFilters === 3
-                ? "grid-cols-3"
-                : "grid-cols-2 md:grid-cols-4"
-            }
-          `}
-        >
-          {showPool && (
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Pool
-              </label>
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end">
+        {/* Secondary Filters */}
+        {visibleSelects > 0 && (
+          <div
+            className={`
+              grid gap-4 xl:w-72 xl:shrink-0
+              ${
+                visibleSelects === 1
+                  ? "grid-cols-1"
+                  : visibleSelects === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
+              }
+            `}
+          >
+            {showPool && (
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  Pool
+                </label>
 
-              <select
-                className="w-full rounded border p-2"
-                value={filters.pool}
-                onChange={(e) =>
-                  update("pool", e.target.value)
-                }
-              >
-                {pools.map((pool) => (
-                  <option
-                    key={pool}
-                    value={pool}
-                  >
-                    {pool}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                <select
+                  className="w-full rounded border p-2"
+                  value={filters.pool}
+                  onChange={(e) =>
+                    update("pool", e.target.value)
+                  }
+                >
+                  {pools.map((pool) => (
+                    <option
+                      key={pool}
+                      value={pool}
+                    >
+                      {pool}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-          {showPower && (
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Power
-              </label>
+            {showPower && (
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  Power
+                </label>
 
-              <select
-                className="w-full rounded border p-2"
-                value={filters.power}
-                onChange={(e) =>
-                  update("power", e.target.value)
-                }
-              >
-                {powers.map((power) => (
-                  <option
-                    key={power}
-                    value={power}
-                  >
-                    {power}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                <select
+                  className="w-full rounded border p-2"
+                  value={filters.power}
+                  onChange={(e) =>
+                    update("power", e.target.value)
+                  }
+                >
+                  {powers.map((power) => (
+                    <option
+                      key={power}
+                      value={power}
+                    >
+                      {power}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-          {showBulk && (
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Bulk
-              </label>
+            {showBulk && (
+              <div>
+                <label className="mb-1 block text-sm font-medium">
+                  Bulk
+                </label>
 
-              <select
-                className="w-full rounded border p-2"
-                value={filters.bulk}
-                onChange={(e) =>
-                  update("bulk", e.target.value)
-                }
-              >
-                {bulks.map((bulk) => (
-                  <option
-                    key={bulk}
-                    value={bulk}
-                  >
-                    {bulk}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                <select
+                  className="w-full rounded border p-2"
+                  value={filters.bulk}
+                  onChange={(e) =>
+                    update("bulk", e.target.value)
+                  }
+                >
+                  {bulks.map((bulk) => (
+                    <option
+                      key={bulk}
+                      value={bulk}
+                    >
+                      {bulk}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        )}
 
-          {showColor && (
-            <div>
-              <label className="mb-1 block text-sm font-medium">
-                Color
-              </label>
-
-              <select
-                className="w-full rounded border p-2"
-                value={filters.color}
-                onChange={(e) =>
-                  update("color", e.target.value)
-                }
-              >
-                {colors.map((color) => (
-                  <option
-                    key={color}
-                    value={color}
-                  >
-                    {color}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
-      )}
+        {showColor && (
+          <div className="min-w-0 flex-1">
+            <ColorFilter
+              selected={filters.colors}
+              mode={filters.colorMode}
+              onChange={(colors) => update("colors", colors)}
+              onModeChange={(colorMode) => update("colorMode", colorMode)}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

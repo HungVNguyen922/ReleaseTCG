@@ -1,5 +1,7 @@
 import { CardFilterValues } from "@/types/cards";
 
+import { matchesColors } from "./colorFilter";
+
 type CardLike = {
   name: string;
   trait?: string | null;
@@ -22,7 +24,7 @@ function getColors(card: CardLike): string[] {
   return card.colors ?? card.palette ?? [];
 }
 
-function matchesSearch(card: CardLike, query: string) {
+export function matchesSearch(card: CardLike, query: string) {
   if (!query.trim()) return true;
 
   const q = query.toLowerCase();
@@ -56,11 +58,6 @@ function matchesBulk(card: CardLike, bulk: string) {
   return bulk === "all" || card.bulk === Number(bulk);
 }
 
-function matchesColor(card: CardLike, color: string) {
-  if (!color || color === "all") return true;
-  return getColors(card).includes(color);
-}
-
 export function filterCards<T extends CardLike>(
   cards: T[],
   filters: CardFilterValues
@@ -71,7 +68,7 @@ export function filterCards<T extends CardLike>(
       matchesPool(card, filters.pool) &&
       matchesPower(card, filters.power) &&
       matchesBulk(card, filters.bulk) &&
-      matchesColor(card, filters.color)
+      matchesColors(getColors(card), filters.colors, filters.colorMode)
     );
   });
 }

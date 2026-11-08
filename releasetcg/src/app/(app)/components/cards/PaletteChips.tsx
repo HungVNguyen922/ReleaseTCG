@@ -1,4 +1,4 @@
-const colorMap: Record<
+export const colorMap: Record<
   string,
   { label: string; bg: string }
 > = {

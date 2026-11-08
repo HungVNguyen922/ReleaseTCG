@@ -78,10 +78,34 @@ export type AdminCardSummary = CardCore & {
   palette: string[];
 };
 
+/**
+ * How a color filter compares against a card's palette.
+ * - "contains": the card has all of the selected colors (and possibly more).
+ * - "exact": the card has exactly the selected colors.
+ */
+export type ColorMatchMode = "contains" | "exact";
+
+/** Used by the admin card manager. */
 export type CardFilterValues = {
   search: string;
   pool?: string;
   power: string;
   bulk: string;
-  color: string;
+  /** Up to 4 selected colors. Empty means "any color". */
+  colors: string[];
+  colorMode: ColorMatchMode;
+};
+
+export type CardSort = "name" | "power" | "bulk" | "setName";
+export type SortDirection = "asc" | "desc";
+
+/** Used by the Gallery and the Deck Builder, so both filter the same way. */
+export type CardBrowserFilterState = {
+  search: string;
+  /** Empty string means "all sets". */
+  setName: string;
+  colors: string[];
+  colorMode: ColorMatchMode;
+  sort: CardSort;
+  direction: SortDirection;
 };

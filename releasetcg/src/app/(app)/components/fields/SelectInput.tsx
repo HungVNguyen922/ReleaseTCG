@@ -1,7 +1,9 @@
+type SelectOption = string | { label: string; value: string };
+
 type SelectInputProps = {
   label?: string;
   value: string;
-  options: string[];
+  options: SelectOption[];
   onChange: (value: string) => void;
 };
 
@@ -26,16 +28,26 @@ export function SelectInput({
           onChange(e.target.value)
         }
       >
-        {options.map((option) => (
-          <option
-            key={option}
-            value={option}
-          >
-            {option === ""
-              ? "None"
-              : option}
-          </option>
-        ))}
+        {options.map((option) => {
+          const optionValue =
+            typeof option === "string" ? option : option.value;
+
+          const text =
+            typeof option === "string"
+              ? option === ""
+                ? "None"
+                : option
+              : option.label;
+
+          return (
+            <option
+              key={optionValue}
+              value={optionValue}
+            >
+              {text}
+            </option>
+          );
+        })}
       </select>
     </div>
   );

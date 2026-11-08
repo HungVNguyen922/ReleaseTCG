@@ -17,8 +17,10 @@ export default function DeckControls({ activeZone, setActiveZone }: Props) {
         </div>
 
         <div className="hidden text-xs text-muted-foreground md:block [@media(max-height:520px)]:hidden!">
-          {activeZone === "main" && "Click cards to add to main deck"}
-          {activeZone === "extra" && "Click cards to add to extra deck"}
+          {activeZone === "main" &&
+            "Click cards to add to main deck · right-click for details"}
+          {activeZone === "extra" &&
+            "Click cards to add to extra deck · right-click for details"}
         </div>
       </div>
 

@@ -4,8 +4,8 @@ import { useState } from "react";
 
 import { PlayableCard } from "@/types/cards";
 import { CardModal } from "@/features/cards/CardModal";
-import { useGalleryFilters } from "./hooks/useGalleryFilters";
-import { GalleryFilters } from "./components/GalleryFilters";
+import { useCardBrowserFilters } from "@/hooks/useCardBrowserFilters";
+import { CardBrowserFilters } from "@/app/(app)/components/cards/CardBrowserFilters";
 import { GalleryGrid } from "./components/GalleryGrid";
 
 type Props = {
@@ -13,29 +13,18 @@ type Props = {
 };
 
 export function Gallery({ initialCards }: Props) {
-  const {
-    filters,
-    filteredCards,
-    setSearch,
-    setSetName,
-    setColor,
-    setSort,
-    setDirection,
-  } = useGalleryFilters(initialCards);
+  const { filteredCards, filterProps } = useCardBrowserFilters(initialCards);
 
   const [selectedCard, setSelectedCard] = useState<PlayableCard | null>(null);
 
   return (
     <div className="flex h-full flex-col">
-      <GalleryFilters
-        filters={filters}
-        onSearch={setSearch}
-        onSetName={setSetName}
-        onColor={setColor}
-        onSort={setSort}
-        onDirection={setDirection}
+      <CardBrowserFilters
+        {...filterProps}
+        className="sticky top-0 z-20 border-b"
       />
 
+      {/* Left click opens the card details. */}
       <GalleryGrid cards={filteredCards} onCardClick={setSelectedCard} />
 
       <CardModal

@@ -3,18 +3,21 @@
 import { useEffect, useState } from "react";
 
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCardBrowserFilters } from "@/hooks/useCardBrowserFilters";
+
+import type { PlayableCard } from "@/types/cards";
 
 import { useCards } from "./hooks/useCards";
 import { useDeckBuilder } from "./hooks/useDeckBuilder";
-import { useCardFilters } from "./hooks/useCardFilters";
 import { useDeckOperations } from "./hooks/useDeckOperations";
 
 import CardBrowser from "./components/CardBrowser";
 import DeckControls from "./components/DeckControls";
 import DeckPanel from "./components/DeckPanel";
-import DeckToolbar from "./components/DeckToolbar";
 
+import { CardBrowserFilters } from "@/app/(app)/components/cards/CardBrowserFilters";
 import CardPreviewPopup from "@/app/(app)/components/cards/CardPreviewPopup";
+import { CardModal } from "@/features/cards/CardModal";
 
 import { getDeck } from "@/utils/decks";
 
@@ -29,6 +32,9 @@ export default function DeckBuilder({ deckId }: Props) {
   const isMobile = useIsMobile();
   const [mobileTab, setMobileTab] = useState<"cards" | "deck">("cards");
   const [showFilters, setShowFilters] = useState(false);
+
+  // Right click (or long-press) on a card opens its details.
+  const [inspectedCard, setInspectedCard] = useState<PlayableCard | null>(null);
 
   const {
     deck,
@@ -59,11 +65,8 @@ export default function DeckBuilder({ deckId }: Props) {
     loadDeck,
   } = useDeckBuilder(cards);
 
-  const {
-    filters,
-    setFilters,
-    filteredCards: browserCards,
-  } = useCardFilters(filteredCards);
+  const { filteredCards: browserCards, filterProps } =
+    useCardBrowserFilters(filteredCards);
 
   const { handleSave, handleExport, handleImport, handleClear } =
     useDeckOperations({ deck, cards, loadDeck, deckId });
@@ -100,6 +103,14 @@ export default function DeckBuilder({ deckId }: Props) {
     );
   }
 
+  function handleInspectCard(card: PlayableCard) {
+    // Hide the hover preview so it doesn't sit on top of the details.
+    setHoveredCardId(null);
+    setHoverAnchor(null);
+
+    setInspectedCard(card);
+  }
+
   const browser = (
     <CardBrowser
       cards={browserCards}
@@ -107,6 +118,7 @@ export default function DeckBuilder({ deckId }: Props) {
       setHoveredCardId={setHoveredCardId}
       setHoverAnchor={setHoverAnchor}
       onClickCard={handleCardClick}
+      onInspectCard={handleInspectCard}
     />
   );
 
@@ -167,8 +179,8 @@ export default function DeckBuilder({ deckId }: Props) {
                 </button>
 
                 {showFilters && (
-                  <div className="max-h-[45dvh] shrink-0 overflow-y-auto">
-                    <DeckToolbar filters={filters} setFilters={setFilters} />
+                  <div className="max-h-[45dvh] shrink-0 overflow-y-auto rounded-xl border">
+                    <CardBrowserFilters {...filterProps} />
                   </div>
                 )}
 
@@ -181,7 +193,10 @@ export default function DeckBuilder({ deckId }: Props) {
         ) : (
           <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_320px] grid-rows-[minmax(0,1fr)] gap-4">
             <div className="flex min-h-0 flex-col gap-3">
-              <DeckToolbar filters={filters} setFilters={setFilters} />
+              <CardBrowserFilters
+                {...filterProps}
+                className="rounded-xl border"
+              />
 
               <div className="min-h-0 flex-1">{browser}</div>
             </div>
@@ -192,6 +207,14 @@ export default function DeckBuilder({ deckId }: Props) {
       </div>
 
       <CardPreviewPopup card={hoveredCard} anchor={hoverAnchor} />
+
+      <CardModal
+        card={inspectedCard}
+        open={inspectedCard !== null}
+        onOpenChange={(open) => {
+          if (!open) setInspectedCard(null);
+        }}
+      />
     </>
   );
 }

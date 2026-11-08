@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 import type { PlayableCard } from "@/types/cards";
@@ -22,10 +23,18 @@ type Props = {
     anchor: DOMRect | null
   ) => void;
 
+  /** Left click: add the card to the deck. */
   onClick: (
     card: PlayableCard
   ) => void;
+
+  /** Right click (or long-press on touch screens): show card details. */
+  onInspect: (
+    card: PlayableCard
+  ) => void;
 };
+
+const LONG_PRESS_MS = 500;
 
 export default function BrowserCard({
   card,
@@ -33,10 +42,40 @@ export default function BrowserCard({
   setHoveredCardId,
   setHoverAnchor,
   onClick,
+  onInspect,
 }: Props) {
+  const pressTimer = useRef<number | null>(null);
+  const longPressed = useRef(false);
+
+  useEffect(() => {
+    const timer = pressTimer;
+
+    return () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    };
+  }, []);
+
+  function cancelPress() {
+    if (pressTimer.current !== null) {
+      window.clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+  }
+
+  function startPress() {
+    longPressed.current = false;
+    cancelPress();
+
+    pressTimer.current = window.setTimeout(() => {
+      pressTimer.current = null;
+      longPressed.current = true;
+      onInspect(card);
+    }, LONG_PRESS_MS);
+  }
+
   return (
     <div
-      className="group cursor-pointer overflow-hidden rounded-xl border bg-card shadow transition hover:-translate-y-1 hover:shadow-lg"
+      className="group cursor-pointer select-none overflow-hidden rounded-lg border bg-card shadow transition [-webkit-touch-callout:none] hover:-translate-y-0.5 hover:shadow-lg"
       onMouseEnter={(e) => {
         // Touch screens fake a hover on tap; the popup would just get in the way.
         if (window.matchMedia("(hover: none)").matches) return;
@@ -51,15 +90,36 @@ export default function BrowserCard({
         setHoveredCardId(null);
         setHoverAnchor(null);
       }}
-      onClick={() => onClick(card)}
+      onMouseDown={() => {
+        longPressed.current = false;
+      }}
+      onClick={() => {
+        // A long-press already opened the details, so don't also add the card.
+        if (longPressed.current) {
+          longPressed.current = false;
+          return;
+        }
+
+        onClick(card);
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        cancelPress();
+        onInspect(card);
+      }}
+      onTouchStart={startPress}
+      onTouchMove={cancelPress}
+      onTouchEnd={cancelPress}
+      onTouchCancel={cancelPress}
     >
       <div className="relative aspect-[5/7] bg-black/5">
         <Image
           src={getCardImageUrl(card)}
           alt={card.name}
           fill
-          sizes="(max-width: 768px) 50vw, 200px"
+          sizes="(max-width: 768px) 34vw, 160px"
           className="object-cover"
+          draggable={false}
         />
 
         {(counts?.main || counts?.extra) && (

@@ -2,14 +2,16 @@
 
 import { useMemo, useState } from "react";
 
-import { PlayableCard } from "@/types/cards";
+import { PlayableCard, ColorMatchMode } from "@/types/cards";
+import { matchesColors } from "@/lib/cards/colorFilter";
 import { GalleryFilterState, GallerySort, SortDirection } from "../types";
 
 export function useGalleryFilters(cards: PlayableCard[]) {
   const [filters, setFilters] = useState<GalleryFilterState>({
     search: "",
     setName: "",
-    color: "",
+    colors: [],
+    colorMode: "contains",
     sort: "name",
     direction: "asc",
   });
@@ -22,8 +24,12 @@ export function useGalleryFilters(cards: PlayableCard[]) {
     setFilters((prev) => ({ ...prev, setName }));
   }
 
-  function setColor(color: string) {
-    setFilters((prev) => ({ ...prev, color }));
+  function setColors(colors: string[]) {
+    setFilters((prev) => ({ ...prev, colors }));
+  }
+
+  function setColorMode(colorMode: ColorMatchMode) {
+    setFilters((prev) => ({ ...prev, colorMode }));
   }
 
   function setSort(sort: GallerySort) {
@@ -47,7 +53,7 @@ export function useGalleryFilters(cards: PlayableCard[]) {
         return false;
       }
 
-      if (filters.color && !card.colors.includes(filters.color)) {
+      if (!matchesColors(card.colors, filters.colors, filters.colorMode)) {
         return false;
       }
 
@@ -77,5 +83,14 @@ export function useGalleryFilters(cards: PlayableCard[]) {
     return filtered;
   }, [cards, filters]);
 
-  return { filters, filteredCards, setSearch, setSetName, setColor, setSort, setDirection };
+  return {
+    filters,
+    filteredCards,
+    setSearch,
+    setSetName,
+    setColors,
+    setColorMode,
+    setSort,
+    setDirection,
+  };
 }
