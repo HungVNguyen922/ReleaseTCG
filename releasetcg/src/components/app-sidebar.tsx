@@ -17,6 +17,7 @@ import { LayoutBottomIcon, AudioWave01Icon, CommandIcon, ComputerTerminalIcon, R
 import Link from "next/link"
 import type { User } from "@supabase/supabase-js"
 import { Profile } from "@/types/profiles"
+import { learnHref, lessons } from "@/app/(app)/learn/lessons"
 
 // This is sample data.
 const data = {
@@ -78,46 +79,16 @@ const data = {
       ],
     },
     {
-      title: "Learn",
-      url: "#",
-      icon: (
-        <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />
-      ),
-      items: [
-        {
-          title: "Knowing the Board",
-          url: "#",
-        },
-        {
-          title: "Understanding a Card",
-          url: "#",
-        },
-        {
-          title: "Game Phases",
-          url: "#",
-        },
-        {
-          title: "Playing Cards and Attacks",
-          url: "#",
-        },
-        {
-          title: "Building a Deck",
-          url: "#",
-        },
-        {
-          title: "Setting up a Game",
-          url: "#",
-        },
-        {
-          title: "Additional Rules",
-          url: "#",
-        },
-        {
-          title: "FAQ",
-          url: "#",
-        },
-      ],
-    },
+       title: "Learn",
+       url: "#",
+       icon: (
+         <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />
+       ),
+      items: lessons.map((lesson) => ({
+        title: lesson.title,
+        url: learnHref(lesson.slug),
+      })),
+     },
   ],
   projects: [
     {
