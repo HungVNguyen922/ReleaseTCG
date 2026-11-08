@@ -23,7 +23,8 @@ export function CardManager({ cards }: Props) {
     pool: "all",
     power: "all",
     bulk: "all",
-    color: "all",
+    colors: [],
+    colorMode: "contains",
   });
 
   const filteredCards = useMemo(

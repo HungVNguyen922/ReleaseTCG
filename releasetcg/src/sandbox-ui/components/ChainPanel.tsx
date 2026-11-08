@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 
-import { findCard, type SandboxCard } from "@/lib/sandbox";
+import { describeZone, findCard, type SandboxCard } from "@/lib/sandbox";
 
 import CardView from "./CardView";
 import DropZone from "./DropZone";
 
 import { useSandbox } from "../SandboxProvider";
+
+const cornerButton = "absolute z-10 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow [@media(hover:hover)]:hidden [@media(hover:hover)]:group-hover:flex";
 
 function Row({
     cards,
@@ -19,7 +21,7 @@ function Row({
     onResolve: (id: string) => void;
 }) {
 
-    const { ping } = useSandbox();
+    const { ping, state, selected, toggleSelect, openMenu } = useSandbox();
 
     if (cards.length === 0) {
         return <span className="px-1 text-xs text-muted-foreground">{empty}</span>;
@@ -27,22 +29,112 @@ function Row({
 
     return (
         <div className="flex gap-1">
-            {cards.map(sc => (
-                <div key={sc.id} className="group relative aspect-[5/7] h-[var(--chain-card-h)]">
+            {cards.map(sc => {
 
-                    <CardView sc={{ ...sc, faceUp: true }} draggable={false} onClick={() => ping(sc.id)} />
+                const where = findCard(state, sc.id);
 
-                    <button
-                        type="button"
-                        title="Mark as resolved"
-                        onClick={() => onResolve(sc.id)}
-                        className="absolute -right-1 -top-1 z-10 hidden h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground shadow group-hover:flex"
+                return (
+                    <div
+                        key={sc.id}
+                        title={where ? `On ${describeZone(where.zone)}` : undefined}
+                        className="group relative aspect-[5/7] h-[var(--chain-card-h)]"
                     >
-                        ×
-                    </button>
 
-                </div>
-            ))}
+                        {/* Draggable like any other card, so it can go straight to a zone. */}
+                        <CardView
+                            sc={{ ...sc, faceUp: true }}
+                            onClick={event => {
+
+                                if (event.shiftKey || event.ctrlKey || event.metaKey) {
+                                    toggleSelect(sc.id);
+                                } else {
+                                    ping(sc.id);
+                                }
+
+                            }}
+                        />
+
+                        <button
+                            type="button"
+                            title="Move, flip or look: same menu as right-click"
+                            aria-label="Card actions"
+                            onClick={event => {
+
+                                event.stopPropagation();
+
+                                const rect = event.currentTarget.getBoundingClientRect();
+
+                                openMenu(
+                                    rect.left,
+                                    rect.bottom + 4,
+                                    selected.includes(sc.id) ? selected : [sc.id],
+                                );
+
+                            }}
+                            className={`${cornerButton} -left-1 -top-1`}
+                        >
+                            &#x22EF;
+                        </button>
+
+                        <button
+                            type="button"
+                            title="Mark as resolved"
+                            aria-label="Mark as resolved"
+                            onClick={() => onResolve(sc.id)}
+                            className={`${cornerButton} -right-1 -top-1`}
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                );
+
+            })}
+        </div>
+    );
+
+}
+
+function RowHeader({
+    label,
+    cards,
+}: {
+    label: string;
+    cards: SandboxCard[];
+}) {
+
+    const { selected, toggleSelect } = useSandbox();
+
+    const allSelected =
+        cards.length > 0 && cards.every(sc => selected.includes(sc.id));
+
+    return (
+        <div className="flex items-center justify-between gap-2">
+
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {label}
+            </span>
+
+            {cards.length > 1 && (
+                <button
+                    type="button"
+                    onClick={() => {
+
+                        for (const sc of cards) {
+
+                            if (allSelected || !selected.includes(sc.id)) {
+                                toggleSelect(sc.id);
+                            }
+
+                        }
+
+                    }}
+                    className="text-[10px] text-muted-foreground underline-offset-2 hover:underline"
+                >
+                    {allSelected ? "Deselect all" : "Select all"}
+                </button>
+            )}
+
         </div>
     );
 
@@ -50,8 +142,10 @@ function Row({
 
 /**
  * Top-left chain: the cards played this turn (first row) and the parries
- * played against them (second row). Purely a visual queue: marking a card
- * resolved just removes it from the chain, the card stays on its gate.
+ * played against them (second row). Cards here can be dragged straight to
+ * any zone, or moved from their menu button, without digging through the
+ * gates. Marking a card resolved just removes it from the chain; it stays on
+ * its gate.
  */
 export default function ChainPanel() {
 
@@ -86,9 +180,7 @@ export default function ChainPanel() {
 
             </div>
 
-            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Plays (oldest first)
-            </span>
+            <RowHeader label="Plays (oldest first)" cards={plays} />
 
             <div className="min-h-[var(--chain-card-h)]">
                 <Row
@@ -98,9 +190,7 @@ export default function ChainPanel() {
                 />
             </div>
 
-            <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                Parries (drop cards here)
-            </span>
+            <RowHeader label="Parries (drop cards here)" cards={parries} />
 
             <DropZone
                 onCards={ids => game.parry(ids)}
@@ -112,6 +202,12 @@ export default function ChainPanel() {
                     onResolve={id => game.resolveCard(id)}
                 />
             </DropZone>
+
+            <p className="text-[10px] leading-tight text-muted-foreground">
+                Drag a card out of the chain, or use its menu button, to move
+                it. Shift-click selects several. Moving a card off its gate
+                also takes it out of the chain.
+            </p>
 
         </div>
     );

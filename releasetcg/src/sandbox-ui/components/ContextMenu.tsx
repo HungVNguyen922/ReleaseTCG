@@ -237,9 +237,35 @@ export default function ContextMenu() {
                             {describeZone(zone)} ({zoneCount})
                         </div>
 
-                        <div className="flex items-center gap-1 px-3 py-1">
+                        <div className="px-3 pt-1 text-xs text-muted-foreground">
+                            Look at (you flip the cards one at a time)
+                        </div>
 
-                            <span className="text-sm">Cards</span>
+                        <div className="flex gap-1 px-3 pb-1">
+
+                            <button
+                                type="button"
+                                className={lookClass}
+                                disabled={zoneCount === 0}
+                                onClick={() => openPeek(zone, "top")}
+                            >
+                                Top
+                            </button>
+
+                            <button
+                                type="button"
+                                className={lookClass}
+                                disabled={zoneCount === 0}
+                                onClick={() => openPeek(zone, "bottom")}
+                            >
+                                Bottom
+                            </button>
+
+                        </div>
+
+                        <div className="px-3 pt-1 text-xs text-muted-foreground">Move to another zone</div>
+
+                        <div className="flex items-center gap-1 px-3 pb-2">
 
                             <input
                                 type="number"
@@ -248,39 +274,9 @@ export default function ContextMenu() {
                                 onChange={event =>
                                     setCount(Math.max(1, Number(event.target.value) || 1))
                                 }
-                                aria-label="How many cards"
+                                aria-label="How many cards to move"
                                 className="h-8 w-14 rounded border bg-background px-1 text-center text-sm"
                             />
-
-                        </div>
-
-                        <div className="px-3 pt-1 text-xs text-muted-foreground">Look at</div>
-
-                        <div className="flex gap-1 px-3 pb-1">
-
-                            <button
-                                type="button"
-                                className={lookClass}
-                                disabled={zoneCount === 0}
-                                onClick={() => openPeek(zone, "top", count)}
-                            >
-                                Top {count}
-                            </button>
-
-                            <button
-                                type="button"
-                                className={lookClass}
-                                disabled={zoneCount === 0}
-                                onClick={() => openPeek(zone, "bottom", count)}
-                            >
-                                Bottom {count}
-                            </button>
-
-                        </div>
-
-                        <div className="px-3 pt-1 text-xs text-muted-foreground">Move to another zone</div>
-
-                        <div className="flex gap-1 px-3 pb-2">
 
                             <button
                                 type="button"

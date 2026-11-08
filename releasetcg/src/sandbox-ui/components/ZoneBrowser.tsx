@@ -2,11 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 
+import CardBack from "@/game-ui/components/cards/CardBack";
+
 import {
     describeZone,
     extraZone,
     handZone,
+    nextPeekId,
     parseZone,
+    unseenCount,
 } from "@/lib/sandbox";
 
 import CardView from "./CardView";
@@ -22,6 +26,7 @@ export default function ZoneBrowser() {
     const {
         peek,
         closePeek,
+        flipPeek,
         browsing,
         browse,
         state,
@@ -50,6 +55,13 @@ export default function ZoneBrowser() {
 
     const { kind } = parseZone(zone);
 
+    // While looking, cards start face down and are flipped one at a time.
+    const unseen = peek ? unseenCount(state, zone, peek.ids) : 0;
+
+    const canFlip = peek
+        ? nextPeekId(state, zone, peek.side, peek.ids) !== null
+        : false;
+
     function sendSelected(to: Parameters<typeof dropCards>[1], position?: "top" | "bottom") {
 
         if (selected.length === 0) {
@@ -69,11 +81,21 @@ export default function ZoneBrowser() {
 
                 <div className="flex flex-wrap items-center justify-between gap-2">
 
-                    <h2 className="text-lg font-bold capitalize">
-                        {peek
-                            ? `${peek.side === "top" ? "Top" : "Bottom"} ${cards.length} of ${describeZone(zone)}`
-                            : `${describeZone(zone)} (${cards.length})`}
-                    </h2>
+                    <div>
+
+                        <h2 className="text-lg font-bold capitalize">
+                            {peek
+                                ? `Looking at the ${peek.side} of ${describeZone(zone)}`
+                                : `${describeZone(zone)} (${cards.length})`}
+                        </h2>
+
+                        {peek && (
+                            <p className="text-xs text-muted-foreground">
+                                {cards.length} flipped, {unseen} not yet seen
+                            </p>
+                        )}
+
+                    </div>
 
                     <div className="flex flex-wrap items-center gap-1">
 
@@ -85,9 +107,9 @@ export default function ZoneBrowser() {
                             size="sm"
                             variant="outline"
                             onClick={() => dropCards(topN(1), handZone(viewer))}
-                            disabled={cards.length === 0 || peek?.side === "bottom"}
+                            disabled={cards.length === 0}
                         >
-                            Take top to hand
+                            {peek ? `Take ${peek.side} card to hand` : "Take top to hand"}
                         </Button>
 
                         <Button size="sm" variant="outline" onClick={close}>
@@ -139,8 +161,9 @@ export default function ZoneBrowser() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                    {peek && "Only these cards were looked at; the rest of the pile stays hidden. "}
-                    Top of the {kind === "gate" || kind === "set" ? "stack" : "pile"} is first. Click cards to select; right-click for more options.
+                    {peek
+                        ? "Flip cards one at a time. Only the cards you flip are shown and the rest of the pile stays hidden. Cards are numbered in the order you flipped them. Click cards to select; right-click for more options."
+                        : `Top of the ${kind === "gate" || kind === "set" ? "stack" : "pile"} is first. Click cards to select; right-click for more options.`}
                 </p>
 
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3 overflow-y-auto p-1">
@@ -158,6 +181,41 @@ export default function ZoneBrowser() {
 
                         </div>
                     ))}
+
+                    {peek && (
+                        <div className="relative">
+
+                            <div className="aspect-[5/7] w-full">
+
+                                <button
+                                    type="button"
+                                    autoFocus
+                                    disabled={!canFlip}
+                                    onClick={flipPeek}
+                                    aria-label={canFlip ? "Flip the next card" : "No more cards to flip"}
+                                    className="group relative h-full w-full rounded-xl disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+
+                                    <CardBack />
+
+                                    <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-xl bg-black/40 text-center text-sm font-semibold text-white transition group-hover:bg-black/20">
+
+                                        {canFlip ? "Flip" : "No more cards"}
+
+                                        {canFlip && (
+                                            <span className="text-[10px] font-normal">
+                                                {unseen} left
+                                            </span>
+                                        )}
+
+                                    </span>
+
+                                </button>
+
+                            </div>
+
+                        </div>
+                    )}
 
                 </div>
 

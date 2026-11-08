@@ -18,6 +18,7 @@ import {
     describeZone,
     findCard,
     otherSeat,
+    nextPeekId,
     parseZone,
     peekIds,
     type MoveOptions,
@@ -41,10 +42,15 @@ export interface CardMenuState {
     zone: ZoneKey | null;
 }
 
-/** A limited look at the top or bottom of a pile or stack. */
+/**
+ * A look through the top or bottom of a pile or stack, one card at a time.
+ * Every card starts face down and the player flips them into view.
+ */
 export interface PeekState {
     zone: ZoneKey;
     side: "top" | "bottom";
+
+    /** Cards flipped face up so far, in the order they were flipped. */
     ids: string[];
 }
 
@@ -118,7 +124,11 @@ interface SandboxContextValue {
     /** Look at only the top or bottom `count` cards of a zone. */
     peek: PeekState | null;
 
-    openPeek: (zone: ZoneKey, side: "top" | "bottom", count: number) => void;
+    /** Open the look view with every card still face down. */
+    openPeek: (zone: ZoneKey, side: "top" | "bottom") => void;
+
+    /** Flip the next card of the look view face up. */
+    flipPeek: () => void;
 
     closePeek: () => void;
 
@@ -278,28 +288,52 @@ export function SandboxProvider({ game, onExit, children }: Props) {
     const openPeek = useCallback((
         zone: ZoneKey,
         side: "top" | "bottom",
-        count: number,
     ) => {
-
-        const ids = peekIds(game.getState(), zone, side, count);
 
         setMenu(null);
         setSelected([]);
 
-        if (ids.length === 0) {
+        if (game.getState().zones[zone].length === 0) {
             return;
         }
 
         setBrowsing(null);
 
-        setPeek({ zone, side, ids });
+        // Nothing is revealed yet: the player flips cards one at a time.
+        setPeek({ zone, side, ids: [] });
+
+    }, [game]);
+
+    const flipPeek = useCallback(() => {
+
+        if (!peek) {
+            return;
+        }
+
+        const current = game.getState();
+
+        const next = nextPeekId(current, peek.zone, peek.side, peek.ids);
+
+        if (!next) {
+            return;
+        }
+
+        const present = new Set(current.zones[peek.zone].map(card => card.id));
+
+        const alreadyShown = peek.ids.filter(id => present.has(id)).length;
+
+        setPeek({ ...peek, ids: [...peek.ids, next] });
 
         // Visible to both players in the log, so nobody peeks in secret.
         game.note(
-            `${viewer} looked at the ${side} ${ids.length === 1 ? "card" : `${ids.length} cards`} of ${describeZone(zone)}`,
+            `${viewer} looked at ${
+                alreadyShown === 0
+                    ? `the ${peek.side} card`
+                    : `card ${alreadyShown + 1} from the ${peek.side}`
+            } of ${describeZone(peek.zone)}`,
         );
 
-    }, [game, viewer]);
+    }, [game, peek, viewer]);
 
     const closePeek = useCallback(() => setPeek(null), []);
 
@@ -505,6 +539,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         browse,
         peek,
         openPeek,
+        flipPeek,
         closePeek,
         moving,
         startMove,
@@ -537,6 +572,7 @@ export function SandboxProvider({ game, onExit, children }: Props) {
         browse,
         peek,
         openPeek,
+        flipPeek,
         closePeek,
         moving,
         startMove,
