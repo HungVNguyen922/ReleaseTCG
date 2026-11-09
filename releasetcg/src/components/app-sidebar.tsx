@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
@@ -10,100 +12,99 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { LayoutBottomIcon, AudioWave01Icon, CommandIcon, ComputerTerminalIcon, RoboticIcon, BookOpen02Icon, Settings05Icon, CropIcon, PieChartIcon, MapsIcon, HomeIcon } from "@hugeicons/core-free-icons"
-import Link from "next/link"
+import {
+  LayoutBottomIcon,
+  ComputerTerminalIcon,
+  RoboticIcon,
+  BookOpen02Icon,
+  Settings05Icon,
+  CropIcon,
+  PieChartIcon,
+} from "@hugeicons/core-free-icons"
 import type { User } from "@supabase/supabase-js"
 import { Profile } from "@/types/profiles"
+
 import { learnHref, lessons } from "@/app/(app)/learn/lessons"
 
-// This is sample data.
+/**
+ * The Home icon used to be `HomeIcon` from the Hugeicons package, which isn't
+ * an icon that package exports, so nothing rendered. This is drawn inline
+ * instead, so it can't go missing.
+ */
+function HomeGlyph() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
+    </svg>
+  )
+}
+
 const data = {
   navMain: [
     {
       title: "Play",
       url: "#",
-      icon: (
-        <HugeiconsIcon icon={ComputerTerminalIcon} strokeWidth={2} />
-      ),
+      icon: <HugeiconsIcon icon={ComputerTerminalIcon} strokeWidth={2} />,
       isActive: true,
       items: [
-        {
-          title: "Sandbox",
-          url: "/sandbox",
-        },
-        {
-          title: "Create Lobby",
-          url: "#",
-        },
-        {
-          title: "Join Lobby",
-          url: "#",
-        },
+        { title: "Sandbox", url: "/sandbox" },
+        { title: "Create Lobby", url: "#" },
+        { title: "Join Lobby", url: "#" },
       ],
     },
     {
       title: "Deck Builder",
       url: "#",
-      icon: (
-        <HugeiconsIcon icon={RoboticIcon} strokeWidth={2} />
-      ),
+      icon: <HugeiconsIcon icon={RoboticIcon} strokeWidth={2} />,
       items: [
-        {
-          title: "New Deck",
-          url: "/deckbuilder",
-        },
-        {
-          title: "Community Decks",
-          url: "/community",
-        },
+        { title: "New Deck", url: "/deckbuilder" },
+        { title: "Community Decks", url: "/community" },
       ],
     },
     {
       title: "Gallery",
       url: "#",
-      icon: (
-        <HugeiconsIcon icon={BookOpen02Icon} strokeWidth={2} />
-      ),
+      icon: <HugeiconsIcon icon={BookOpen02Icon} strokeWidth={2} />,
       items: [
-        {
-          title: "All Cards",
-          url: "/gallery",
-        },
-        {
-          title: "Set 1",
-          url: "#",
-        },
+        { title: "All Cards", url: "/gallery" },
+        { title: "Set 1", url: "#" },
       ],
     },
     {
-       title: "Learn",
-       url: "#",
-       icon: (
-         <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />
-       ),
+      title: "Learn",
+      url: "#",
+      icon: <HugeiconsIcon icon={Settings05Icon} strokeWidth={2} />,
       items: lessons.map((lesson) => ({
         title: lesson.title,
         url: learnHref(lesson.slug),
       })),
-     },
+    },
   ],
   projects: [
     {
       name: "Dashboard",
       url: "/dashboard",
-      icon: (
-        <HugeiconsIcon icon={CropIcon} strokeWidth={2} />
-      ),
+      icon: <HugeiconsIcon icon={CropIcon} strokeWidth={2} />,
     },
     {
       name: "Cosmetics",
       url: "#",
-      icon: (
-        <HugeiconsIcon icon={PieChartIcon} strokeWidth={2} />
-      ),
+      icon: <HugeiconsIcon icon={PieChartIcon} strokeWidth={2} />,
     },
   ],
 }
@@ -112,14 +113,9 @@ const adminProjects = [
   {
     name: "Card Manager",
     url: "/cardmanager",
-    icon: (
-      <HugeiconsIcon
-        icon={LayoutBottomIcon}
-        strokeWidth={2}
-      />
-    ),
+    icon: <HugeiconsIcon icon={LayoutBottomIcon} strokeWidth={2} />,
   },
-];
+]
 
 export function AppSidebar({
   user,
@@ -129,22 +125,27 @@ export function AppSidebar({
   user?: User | null
   profile?: Profile | null
 }) {
+  const pathname = usePathname()
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <Link
-          href="/"
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-muted"
-        >
-          <HugeiconsIcon icon={HomeIcon} strokeWidth={2} />
-          Home
-        </Link>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Home" isActive={pathname === "/"}>
+              <Link href="/">
+                <HomeGlyph />
+                <span>Home</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
         {profile?.role === "admin" && (
-          <NavProjects projects={adminProjects} />
+          <NavProjects label="Admin" projects={adminProjects} />
         )}
       </SidebarContent>
       <SidebarFooter>
