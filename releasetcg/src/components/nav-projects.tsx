@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import {
   SidebarGroup,
@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { isRouteActive } from "@/components/nav-utils"
 
 export function NavProjects({
   label = "Projects",
@@ -23,6 +24,7 @@ export function NavProjects({
   }[]
 }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams() ?? new URLSearchParams()
 
   return (
     // Stays visible when the sidebar is collapsed: icons with tooltips.
@@ -34,10 +36,7 @@ export function NavProjects({
             <SidebarMenuButton
               asChild
               tooltip={item.name}
-              isActive={
-                item.url !== "#" &&
-                (pathname === item.url || pathname.startsWith(`${item.url}/`))
-              }
+              isActive={isRouteActive(pathname, searchParams, item.url)}
             >
               <Link href={item.url}>
                 {item.icon}

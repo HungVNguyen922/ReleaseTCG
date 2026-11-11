@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import {
   Collapsible,
@@ -29,6 +29,8 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
 
+import { isRouteActive } from "@/components/nav-utils"
+
 type NavItem = {
   title: string
   url: string
@@ -40,15 +42,9 @@ type NavItem = {
   }[]
 }
 
-/** "#" placeholders never count as the current page. */
-function isRouteActive(pathname: string, url: string) {
-  if (url === "#") return false
-
-  return pathname === url || pathname.startsWith(`${url}/`)
-}
-
 export function NavMain({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
+  const searchParams = useSearchParams() ?? new URLSearchParams()
   const { state, isMobile } = useSidebar()
 
   // When the sidebar is collapsed to icons, sub pages open in a popup instead.
@@ -60,7 +56,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
       <SidebarMenu>
         {items.map((item) => {
           const groupActive = Boolean(
-            item.items?.some((subItem) => isRouteActive(pathname, subItem.url))
+            item.items?.some((subItem) => isRouteActive(pathname, searchParams, subItem.url))
           )
 
           if (collapsed) {
@@ -88,7 +84,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                         key={subItem.title}
                         asChild
                         className={
-                          isRouteActive(pathname, subItem.url)
+                          isRouteActive(pathname, searchParams, subItem.url)
                             ? "bg-accent font-medium"
                             : undefined
                         }
@@ -127,7 +123,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton
                           asChild
-                          isActive={isRouteActive(pathname, subItem.url)}
+                          isActive={isRouteActive(pathname, searchParams, subItem.url)}
                         >
                           <Link href={subItem.url}>
                             <span>{subItem.title}</span>

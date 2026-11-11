@@ -1,5 +1,7 @@
 import type { CardSort, SortDirection } from "@/types/cards";
 
+import { compareSetCodes } from "@/lib/sets/sets";
+
 export const CARD_SORT_OPTIONS: { label: string; value: CardSort }[] = [
   { label: "Name", value: "name" },
   { label: "Power", value: "power" },
@@ -31,10 +33,10 @@ function compareNumbers(a: number, b: number) {
   return a < b ? -1 : 1;
 }
 
-/** Set name first, then the card's number within the set. */
+/** Set order first (set 1, then set 2...), then the card's number within the set. */
 function compareSetAndNumber(a: SortableCard, b: SortableCard) {
   return (
-    (a.setName ?? "").localeCompare(b.setName ?? "") ||
+    compareSetCodes(a.setName, b.setName) ||
     compareNumbers(parseCardNumber(a.cardNumber), parseCardNumber(b.cardNumber))
   );
 }

@@ -1,3 +1,5 @@
+import { findSet } from "@/lib/sets/sets";
+
 type Props = {
   artist: string | null;
   cardNumber: string | null;
@@ -10,6 +12,8 @@ export function CardMetadata({ artist, cardNumber, setName }: Props) {
       ? `${cardNumber} - ${setName}`
       : cardNumber || setName || "—";
 
+  const set = findSet(setName);
+
   return (
     <section className="space-y-3">
       <h3 className="text-lg font-semibold">Metadata</h3>
@@ -20,6 +24,15 @@ export function CardMetadata({ artist, cardNumber, setName }: Props) {
 
         <span className="font-medium">Card</span>
         <span>{identifier}</span>
+
+        {set && (
+          <>
+            <span className="font-medium">Set</span>
+            <span>
+              Set {set.number}: {set.name}
+            </span>
+          </>
+        )}
       </div>
     </section>
   );

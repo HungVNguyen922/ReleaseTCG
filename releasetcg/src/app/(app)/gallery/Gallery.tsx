@@ -10,10 +10,15 @@ import { GalleryGrid } from "./components/GalleryGrid";
 
 type Props = {
   initialCards: PlayableCard[];
+
+  /** A set tag from the URL (?set=IRFO) to start filtered to. */
+  initialSetName?: string;
 };
 
-export function Gallery({ initialCards }: Props) {
-  const { filteredCards, filterProps } = useCardBrowserFilters(initialCards);
+export function Gallery({ initialCards, initialSetName }: Props) {
+  const { filteredCards, filterProps } = useCardBrowserFilters(initialCards, {
+    initialSetName,
+  });
 
   const [selectedCard, setSelectedCard] = useState<PlayableCard | null>(null);
 
@@ -25,7 +30,13 @@ export function Gallery({ initialCards }: Props) {
       />
 
       {/* Left click opens the card details. */}
-      <GalleryGrid cards={filteredCards} onCardClick={setSelectedCard} />
+      {filteredCards.length === 0 ? (
+        <p className="p-8 text-center text-muted-foreground">
+          No cards match these filters yet.
+        </p>
+      ) : (
+        <GalleryGrid cards={filteredCards} onCardClick={setSelectedCard} />
+      )}
 
       <CardModal
         card={selectedCard}

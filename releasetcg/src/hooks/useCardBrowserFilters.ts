@@ -13,15 +13,19 @@ import type {
 import { matchesColors } from "@/lib/cards/colorFilter";
 import { matchesSearch } from "@/lib/cards/filterCards";
 import { sortCards } from "@/lib/cards/sortCards";
+import { sortSetCodes } from "@/lib/sets/sets";
 
 /**
  * Filtering and sorting shared by the Gallery and the Deck Builder.
  * Spread `filterProps` into <CardBrowserFilters />.
  */
-export function useCardBrowserFilters(cards: PlayableCard[]) {
+export function useCardBrowserFilters(
+  cards: PlayableCard[],
+  options: { initialSetName?: string } = {}
+) {
   const [filters, setFilters] = useState<CardBrowserFilterState>({
     search: "",
-    setName: "",
+    setName: options.initialSetName ?? "",
     colors: [],
     colorMode: "contains",
     sort: "setName",
@@ -33,7 +37,8 @@ export function useCardBrowserFilters(cards: PlayableCard[]) {
       .map((card) => card.setName)
       .filter((name): name is string => Boolean(name));
 
-    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+    // Set 1 first, then set 2, and so on.
+    return sortSetCodes([...new Set(names)]);
   }, [cards]);
 
   const filteredCards = useMemo(() => {

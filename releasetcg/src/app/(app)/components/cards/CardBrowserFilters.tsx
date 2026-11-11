@@ -8,6 +8,7 @@ import type {
 } from "@/types/cards";
 
 import { CARD_SORT_OPTIONS } from "@/lib/cards/sortCards";
+import { setLabel } from "@/lib/sets/sets";
 import { cn } from "@/lib/utils";
 
 import { TextInput } from "@/app/(app)/components/fields/TextInput";
@@ -58,7 +59,7 @@ export function CardBrowserFilters({
           value={filters.setName}
           options={[
             { label: "All sets", value: "" },
-            ...setOptions.map((name) => ({ label: name, value: name })),
+            ...setOptions.map((name) => ({ label: setLabel(name), value: name })),
           ]}
           onChange={onSetName}
         />

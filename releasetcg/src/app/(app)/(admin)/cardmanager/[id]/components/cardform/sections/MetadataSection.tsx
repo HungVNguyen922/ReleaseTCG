@@ -3,6 +3,7 @@ import { CardSection } from "../CardSection";
 import { TextInput } from "@/app/(app)/components/fields/TextInput";
 import { SelectInput } from "@/app/(app)/components/fields/SelectInput";
 import { POOL_OPTIONS } from "../constants";
+import { SETS, findSet, setLabel } from "@/lib/sets/sets";
 
 type Props = {
   form: CardForm;
@@ -12,9 +13,17 @@ type Props = {
 export function MetadataSection({ form, update }: Props) {
   return (
     <CardSection title="Metadata">
-      <TextInput
-        label="Set Name"
+      <SelectInput
+        label="Set"
         value={form.setName}
+        options={[
+          { label: "No set", value: "" },
+          ...SETS.map((set) => ({ label: setLabel(set.code), value: set.code })),
+          // A tag that isn't in the registry stays selectable so it isn't lost.
+          ...(form.setName && !findSet(form.setName)
+            ? [{ label: `${form.setName} (not registered)`, value: form.setName }]
+            : []),
+        ]}
         onChange={(value) => update("setName", value)}
       />
 
@@ -39,3 +48,5 @@ export function MetadataSection({ form, update }: Props) {
     </CardSection>
   );
 }
+
+

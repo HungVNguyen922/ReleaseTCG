@@ -31,6 +31,7 @@ import type { User } from "@supabase/supabase-js"
 import { Profile } from "@/types/profiles"
 
 import { learnHref, lessons } from "@/app/(app)/learn/lessons"
+import { SETS, setGalleryHref } from "@/lib/sets/sets"
 
 /**
  * The Home icon used to be `HomeIcon` from the Hugeicons package, which isn't
@@ -82,7 +83,11 @@ const data = {
       icon: <HugeiconsIcon icon={BookOpen02Icon} strokeWidth={2} />,
       items: [
         { title: "All Cards", url: "/gallery" },
-        { title: "Set 1", url: "#" },
+        // One link per set in src/lib/sets/sets.ts, in set order.
+        ...SETS.map((set) => ({
+          title: `Set ${set.number}: ${set.name}`,
+          url: setGalleryHref(set),
+        })),
       ],
     },
     {
@@ -142,11 +147,14 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        {profile?.role === "admin" && (
-          <NavProjects label="Admin" projects={adminProjects} />
-        )}
+        {/* The menus read the URL's query string, which needs a Suspense boundary. */}
+        <React.Suspense fallback={null}>
+          <NavMain items={data.navMain} />
+          <NavProjects projects={data.projects} />
+          {profile?.role === "admin" && (
+            <NavProjects label="Admin" projects={adminProjects} />
+          )}
+        </React.Suspense>
       </SidebarContent>
       <SidebarFooter>
         <NavUser
