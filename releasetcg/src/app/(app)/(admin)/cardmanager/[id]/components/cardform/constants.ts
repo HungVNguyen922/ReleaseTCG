@@ -1,19 +1,5 @@
-export const COLOR_OPTIONS = [
-  "",
-  "Red",
-  "Orange",
-  "Yellow",
-  "Green",
-  "Cyan",
-  "Blue",
-  "Violet",
-  "Magenta",
-  "Pink",
-];
+import { CARD_COLORS, CARD_POOLS } from "@/lib/cards/options";
 
-export const POOL_OPTIONS = [
-  "public",
-  "beta",
-  "draft",
-  "private",
-];
+export const COLOR_OPTIONS = ["", ...CARD_COLORS];
+
+export const POOL_OPTIONS: string[] = [...CARD_POOLS];
