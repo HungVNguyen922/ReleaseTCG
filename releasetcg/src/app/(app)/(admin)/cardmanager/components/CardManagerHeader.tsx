@@ -26,6 +26,13 @@ export function CardManagerHeader() {
         </button>
 
         <button
+          onClick={() => router.push("/cardmanager/generator")}
+          className="rounded border px-4 py-2 hover:bg-muted"
+        >
+          Card Generator
+        </button>
+        
+        <button
           onClick={() =>
             router.push("/cardmanager/newCard")
           }
