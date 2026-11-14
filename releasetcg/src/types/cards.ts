@@ -89,6 +89,7 @@ export type ColorMatchMode = "contains" | "exact";
 export type CardFilterValues = {
   search: string;
   pool?: string;
+  setName?: string;
   power: string;
   bulk: string;
   /** Up to 4 selected colors. Empty means "any color". */

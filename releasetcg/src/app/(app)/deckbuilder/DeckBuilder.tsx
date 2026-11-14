@@ -68,8 +68,13 @@ export default function DeckBuilder({ deckId }: Props) {
   const { filteredCards: browserCards, filterProps } =
     useCardBrowserFilters(filteredCards);
 
-  const { handleSave, handleExport, handleImport, handleClear } =
-    useDeckOperations({ deck, cards, loadDeck, deckId });
+  const {
+    handleSave,
+    handleExport,
+    handleExportImage,
+    handleImport,
+    handleClear,
+  } = useDeckOperations({ deck, cards, loadDeck, deckId });
 
   useEffect(() => {
     if (!deckId) return;
@@ -136,6 +141,7 @@ export default function DeckBuilder({ deckId }: Props) {
       onDecrementCard={handleDecrementCard}
       onSave={handleSave}
       onExport={handleExport}
+      onExportImage={handleExportImage}
       onImport={handleImport}
       onClear={handleClear}
     />

@@ -27,6 +27,7 @@ type Props = {
 
   onSave: () => void;
   onExport: () => void;
+  onExportImage: () => void;
   onImport: () => void;
   onClear: () => void;
 
@@ -50,6 +51,7 @@ export default function DeckPanel({
   onDecrementCard,
   onSave,
   onExport,
+  onExportImage,
   onImport,
   onClear,
   flow = false,
@@ -208,6 +210,13 @@ export default function DeckPanel({
             Clear
           </button>
         </div>
+
+        <button
+          onClick={onExportImage}
+          className="mt-2 w-full rounded border p-2"
+        >
+          Export image
+        </button>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import {
 } from "@/utils/decks";
 
 import { exportDeckCode } from "@/lib/export/exportDeckCode";
+import { exportDeckListImage } from "@/lib/export/exportDeckListImage";
 
 type Props = {
   deck: Deck;
@@ -75,6 +76,17 @@ export function useDeckOperations({
   }, [deck, cards]);
 
   /**
+   * Export as a picture (deck name, extra deck first, then main deck)
+   */
+  const handleExportImage = useCallback(async () => {
+    try {
+      await exportDeckListImage(deck, cards);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Image export failed.");
+    }
+  }, [deck, cards]);
+
+  /**
    * Import
    */
   const handleImport = useCallback(() => {
@@ -116,6 +128,7 @@ export function useDeckOperations({
   return {
     handleSave,
     handleExport,
+    handleExportImage,
     handleImport,
     handleClear,
   };
