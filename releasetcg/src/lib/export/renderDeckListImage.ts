@@ -47,19 +47,23 @@ export function resolveDeckEntries(
 
 const STYLE = {
   columns: 5,
-  cardWidth: 340,
+  cardWidth: 270,
   /** Used until a card image loads and tells us its real shape. */
   cardRatio: 7 / 5,
-  gap: 28,
-  outerPad: 64,
-  panelPad: 32,
-  panelRadius: 28,
-  labelHeight: 92,
-  sectionGap: 48,
-  titleBlock: 200,
+  gap: 24,
+  outerPad: 36,
 
-  badgeRadius: 36,
-  badgeInset: 10,
+  /** Space around the cards inside a panel. The top is larger: the label sits on the border. */
+  panelPadX: 24,
+  panelPadTop: 40,
+  panelPadBottom: 24,
+  panelRadius: 22,
+  panelStroke: 2,
+  sectionGap: 34,
+  titleBlock: 112,
+
+  badgeRatio: 0.12,
+  badgeInset: 8,
 
   background: "#1b1b1d",
   titleColor: "#ffffff",
@@ -71,14 +75,14 @@ const STYLE = {
 
   extra: {
     label: "EXTRA DECK",
-    stroke: "#f5b301",
-    fill: "rgba(245, 179, 1, 0.08)",
+    stroke: "rgba(245, 179, 1, 0.85)",
+    fill: "rgba(245, 179, 1, 0.055)",
     text: "#ffcf4d",
   },
   main: {
     label: "MAIN DECK",
-    stroke: "#6f7fa3",
-    fill: "rgba(255, 255, 255, 0.04)",
+    stroke: "rgba(140, 156, 190, 0.7)",
+    fill: "rgba(255, 255, 255, 0.03)",
     text: "#cfd6e6",
   },
 } as const;
@@ -125,10 +129,10 @@ export function layoutDeckList(
   input: Pick<DeckListInput, "extraDeck" | "mainDeck">,
   cardHeight: number = Math.round(STYLE.cardWidth * STYLE.cardRatio)
 ): DeckListLayout {
-  const { columns, cardWidth, gap, outerPad, panelPad, labelHeight } = STYLE;
+  const { columns, cardWidth, gap, outerPad, panelPadX } = STYLE;
 
   const panelWidth =
-    columns * cardWidth + (columns - 1) * gap + panelPad * 2;
+    columns * cardWidth + (columns - 1) * gap + panelPadX * 2;
 
   const width = panelWidth + outerPad * 2;
 
@@ -145,7 +149,10 @@ export function layoutDeckList(
     const rows = Math.ceil(group.entries.length / columns);
 
     const height =
-      panelPad * 2 + labelHeight + rows * cardHeight + (rows - 1) * gap;
+      STYLE.panelPadTop +
+      rows * cardHeight +
+      (rows - 1) * gap +
+      STYLE.panelPadBottom;
 
     const cards: PlacedCard[] = group.entries.map((entry, index) => {
       const row = Math.floor(index / columns);
@@ -158,7 +165,7 @@ export function layoutDeckList(
           outerPad +
           (panelWidth - rowWidth) / 2 +
           (index % columns) * (cardWidth + gap),
-        y: y + panelPad + labelHeight + row * (cardHeight + gap),
+        y: y + STYLE.panelPadTop + row * (cardHeight + gap),
       };
     });
 
@@ -275,20 +282,20 @@ function drawMissingCard(
   w: number,
   h: number
 ) {
-  roundedRect(ctx, x, y, w, h, 20);
+  roundedRect(ctx, x, y, w, h, 16);
   ctx.fillStyle = "#2c2c31";
   ctx.fill();
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 3;
   ctx.strokeStyle = "#55555c";
   ctx.stroke();
 
   ctx.fillStyle = "#e5e5ea";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 34px ${STYLE.uiFont}`;
+  ctx.font = `700 26px ${STYLE.uiFont}`;
 
-  const lines = wrapLines(ctx, card.name, w - 48);
-  const lineHeight = 44;
+  const lines = wrapLines(ctx, card.name, w - 36);
+  const lineHeight = 34;
   const top = y + h / 2 - ((lines.length - 1) * lineHeight) / 2;
 
   lines.forEach((line, i) => ctx.fillText(line, x + w / 2, top + i * lineHeight));
@@ -302,7 +309,8 @@ function drawBadge(
   cardY: number,
   cardHeight: number
 ) {
-  const { badgeRadius: r, badgeInset } = STYLE;
+  const r = Math.round(STYLE.cardWidth * STYLE.badgeRatio);
+  const { badgeInset } = STYLE;
 
   const cx = cardX + STYLE.cardWidth - badgeInset;
   const cy = cardY + cardHeight - badgeInset;
@@ -311,15 +319,42 @@ function drawBadge(
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fillStyle = STYLE.badgeColor;
   ctx.fill();
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 4;
   ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
   ctx.stroke();
 
   ctx.fillStyle = STYLE.badgeText;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 42px ${STYLE.uiFont}`;
-  ctx.fillText(String(count), cx, cy + 2);
+  ctx.font = `700 ${Math.round(r * 1.1)}px ${STYLE.uiFont}`;
+  ctx.fillText(String(count), cx, cy + 1);
+}
+
+/** A small tag sitting on a panel's top border, like the legend of a fieldset. */
+function drawTag(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  color: string,
+  stroke: string
+) {
+  ctx.font = `700 19px ${STYLE.uiFont}`;
+
+  const height = 32;
+  const width = Math.ceil(ctx.measureText(text).width) + 28;
+
+  roundedRect(ctx, x, y - height / 2, width, height, height / 2);
+  ctx.fillStyle = STYLE.background;
+  ctx.fill();
+  ctx.lineWidth = STYLE.panelStroke;
+  ctx.strokeStyle = stroke;
+  ctx.stroke();
+
+  ctx.fillStyle = color;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x + 14, y + 1);
 }
 
 /**
@@ -379,11 +414,11 @@ export async function renderDeckListImage(
     layout.width - STYLE.outerPad * 2,
     "700",
     STYLE.titleFont,
-    96,
-    44
+    64,
+    32
   );
 
-  ctx.fillText(title, layout.width / 2, STYLE.titleBlock / 2 + 8);
+  ctx.fillText(title, layout.width / 2, STYLE.titleBlock / 2 + 2);
 
   // Sections
   for (const section of layout.sections) {
@@ -399,35 +434,34 @@ export async function renderDeckListImage(
     );
     ctx.fillStyle = look.fill;
     ctx.fill();
-    ctx.lineWidth = 4;
+    ctx.lineWidth = STYLE.panelStroke;
     ctx.strokeStyle = look.stroke;
     ctx.stroke();
 
-    const labelY = section.y + STYLE.panelPad + STYLE.labelHeight / 2;
-
-    ctx.fillStyle = look.text;
-    ctx.textBaseline = "middle";
-
-    ctx.textAlign = "left";
-    ctx.font = `700 38px ${STYLE.uiFont}`;
-    ctx.fillText(section.label, section.x + STYLE.panelPad, labelY);
-
-    ctx.textAlign = "right";
-    ctx.font = `600 32px ${STYLE.uiFont}`;
-    ctx.fillText(
-      `${section.total} ${section.total === 1 ? "card" : "cards"}`,
-      section.x + section.width - STYLE.panelPad,
-      labelY
+    drawTag(
+      ctx,
+      `${look.label}  ·  ${section.total}`,
+      section.x + 24,
+      section.y,
+      look.text,
+      look.stroke
     );
 
     for (const { entry, x, y } of section.cards) {
       const image = loaded.get(entry.card.id) ?? null;
+
+      ctx.save();
+      ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+      ctx.shadowBlur = 14;
+      ctx.shadowOffsetY = 5;
 
       if (image) {
         ctx.drawImage(image, x, y, layout.cardWidth, layout.cardHeight);
       } else {
         drawMissingCard(ctx, entry.card, x, y, layout.cardWidth, layout.cardHeight);
       }
+
+      ctx.restore();
 
       drawBadge(ctx, entry.count, x, y, layout.cardHeight);
     }
